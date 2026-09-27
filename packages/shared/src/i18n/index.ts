@@ -17,8 +17,31 @@ export type SupportedLocale = keyof typeof catalogs;
 
 export const SUPPORTED_LOCALES = Object.keys(catalogs) as SupportedLocale[];
 
-/** English stays the default so an untranslated key is never worse than upstream. */
-export const DEFAULT_LOCALE: SupportedLocale = "en";
+/** `i18n.setLocale("tr")` narrows the locale union, so an unknown tag is a type error. */
+export function isSupportedLocale(value: string): value is SupportedLocale {
+  return SUPPORTED_LOCALES.includes(value as SupportedLocale);
+}
+
+/**
+ * Injected at build time so one source tree produces two artifacts: the
+ * upstream-faithful build and a Turkish one. The injector validates the value
+ * and ignores anything it does not recognize, so a typo in an environment
+ * variable falls back to English rather than producing an unresolvable locale.
+ *
+ * English stays the default in source, so a build that sets nothing behaves
+ * exactly like upstream and an untranslated key is never worse than before.
+ */
+declare const __T3CODE_BUILD_DEFAULT_LOCALE__: string | undefined;
+
+function buildDefaultLocale(): SupportedLocale {
+  const injected =
+    typeof __T3CODE_BUILD_DEFAULT_LOCALE__ === "string"
+      ? __T3CODE_BUILD_DEFAULT_LOCALE__.trim()
+      : "";
+  return isSupportedLocale(injected) ? injected : "en";
+}
+
+export const DEFAULT_LOCALE: SupportedLocale = buildDefaultLocale();
 
 export type MessageParams = Readonly<Record<string, string | number>>;
 
@@ -65,10 +88,6 @@ export function resolveInterfaceLanguage(
   systemLocale: string | null | undefined,
 ): SupportedLocale {
   return preference === "system" ? resolveLocale(systemLocale) : preference;
-}
-
-export function isSupportedLocale(value: string): value is SupportedLocale {
-  return SUPPORTED_LOCALES.includes(value as SupportedLocale);
 }
 
 /**
