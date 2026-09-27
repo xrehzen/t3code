@@ -1,6 +1,7 @@
 import { isElectron } from "~/env";
 import { isMacPlatform, isWindowsPlatform, normalizeSearchText } from "~/lib/utils";
 import { STATIC_KEYBINDING_COMMANDS, type KeybindingCommand } from "@t3tools/contracts";
+import { i18n, type MessageKey, type Translate } from "@t3tools/shared/i18n";
 import type { EnvironmentId } from "@t3tools/contracts";
 import type { EnvironmentConnectionPhase } from "@t3tools/client-runtime/connection";
 import { DEFAULT_KEYBINDINGS } from "@t3tools/shared/keybindings";
@@ -82,19 +83,28 @@ export interface SettingsSearchAvailability {
  * Section labels in sidebar order. The sidebar nav and the search-result
  * subtitles both render from this record, so each label exists once.
  */
-export const SETTINGS_SECTION_LABELS: Readonly<Record<SettingsPath, string>> = {
-  "/settings/projects": "Project",
-  "/settings/general": "General",
-  "/settings/appearance": "Appearance",
-  "/settings/keybindings": "Keybindings",
-  "/settings/snap-shot": "SnapShots",
-  "/settings/providers": "Providers",
-  "/settings/integrations": "Integrations",
-  "/settings/source-control": "Source Control",
-  "/settings/storage": "Storage",
-  "/settings/connections": "Connections",
-  "/settings/archived": "Archive",
+export const SETTINGS_SECTION_LABEL_KEYS: Readonly<Record<SettingsPath, MessageKey>> = {
+  "/settings/projects": "settings.nav.project",
+  "/settings/general": "settings.nav.general",
+  "/settings/appearance": "settings.nav.appearance",
+  "/settings/keybindings": "settings.nav.keybindings",
+  "/settings/snap-shot": "settings.nav.snapShot",
+  "/settings/providers": "settings.nav.providers",
+  "/settings/integrations": "settings.nav.integrations",
+  "/settings/source-control": "settings.nav.sourceControl",
+  "/settings/storage": "settings.nav.storage",
+  "/settings/connections": "settings.nav.connections",
+  "/settings/archived": "settings.nav.archive",
 };
+
+/**
+ * Section label in the active locale. The sidebar nav, the search-result
+ * subtitles, and the breadcrumb all render from this, so a label is authored
+ * once and translated once.
+ */
+export function settingsSectionLabel(to: SettingsPath, t: Translate): string {
+  return t(SETTINGS_SECTION_LABEL_KEYS[to]);
+}
 
 /** Anchor id of the first row bound to `command` on the Keybindings page. */
 export function keybindingSearchAnchorId<Command extends KeybindingCommand>(command: Command) {
@@ -985,7 +995,7 @@ export function searchSettings(
       const title = normalizeSearchText(item.title);
       const fields = [
         title,
-        normalizeSearchText(SETTINGS_SECTION_LABELS[item.to]),
+        normalizeSearchText(i18n.t(SETTINGS_SECTION_LABEL_KEYS[item.to])),
         ...(item.searchTerms ?? []).map(normalizeSearchText),
       ];
       if (!queryTokens.every((token) => fields.some((field) => field.includes(token)))) return [];

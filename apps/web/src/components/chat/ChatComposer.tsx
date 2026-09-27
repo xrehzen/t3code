@@ -78,7 +78,8 @@ import {
   formatAssistantCitationForComposer,
   replaceTextRange,
 } from "../../composer-logic";
-import { DISCONNECTED_COMPOSER_PLACEHOLDER } from "../../composerPlaceholder";
+import { DISCONNECTED_COMPOSER_PLACEHOLDER_KEY } from "../../composerPlaceholder";
+import { useTranslate } from "../../hooks/useI18n";
 import { listContinuationForEnter, listIndentForTab } from "../../composer-list-continuation";
 import {
   deriveComposerSendState,
@@ -1483,6 +1484,7 @@ export interface ChatComposerProps {
 // --------------------------------------------------------------------------
 
 export const ChatComposer = memo(function ChatComposer(props: ChatComposerProps) {
+  const t = useTranslate();
   const {
     composerDraftTarget,
     environmentId,
@@ -6391,9 +6393,9 @@ export const ChatComposer = memo(function ChatComposer(props: ChatComposerProps)
                 >
                   {activePendingProgress
                     ? isChoiceOnlyPendingQuestion
-                      ? "Choose an option above"
+                      ? t("composer.placeholder.chooseOption")
                       : activePendingProgress.customAnswer ||
-                        "Type your own answer, or leave this blank to use the selected option"
+                        t("composer.pendingQuestion.ownAnswerHint")
                     : prompt.trim() ||
                       (showProviderUnavailable
                         ? "Enable a provider in Settings"
@@ -6880,20 +6882,20 @@ export const ChatComposer = memo(function ChatComposer(props: ChatComposerProps)
                     onPaste={onComposerPaste}
                     placeholder={
                       isComposerApprovalState
-                        ? "Resolve this approval request to continue"
+                        ? t("composer.placeholder.resolveApproval")
                         : activePendingProgress
                           ? isChoiceOnlyPendingQuestion
                             ? "Choose an option above"
-                            : "Type your own answer, or leave this blank to use the selected option"
+                            : t("composer.pendingQuestion.ownAnswerHint")
                           : showPlanFollowUpPrompt && activeProposedPlan
-                            ? "Add feedback to refine the plan, or leave this blank to implement it"
+                            ? t("composer.placeholder.planFollowUp")
                             : projectSelectionRequired
-                              ? "Choose a project above to start a thread"
+                              ? t("composer.placeholder.chooseProjectToStart")
                               : showProviderUnavailable
-                                ? "Enable a provider in Settings to send a message"
+                                ? t("composer.placeholder.enableProvider")
                                 : phase === "disconnected"
-                                  ? DISCONNECTED_COMPOSER_PLACEHOLDER
-                                  : "Ask anything, @tag files/folders, $use skills, or / for commands"
+                                  ? t(DISCONNECTED_COMPOSER_PLACEHOLDER_KEY)
+                                  : t("composer.placeholder.full")
                     }
                     disabled={
                       isConnecting ||

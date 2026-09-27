@@ -25,6 +25,7 @@ import {
   XIcon,
 } from "lucide-react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
+import { useTranslate } from "../../hooks/useI18n";
 
 import { Button } from "../ui/button";
 import { Kbd } from "../ui/kbd";
@@ -43,7 +44,8 @@ import { scrollToSettingsTarget } from "./settingsLayout";
 import {
   searchSettings,
   isSettingsOverviewVisible,
-  SETTINGS_SECTION_LABELS,
+  SETTINGS_SECTION_LABEL_KEYS,
+  settingsSectionLabel,
   type SettingsPath,
   type SettingsSearchItem,
 } from "./settingsSearch";
@@ -89,15 +91,9 @@ const SETTINGS_SECTION_ICONS: Readonly<
   "/settings/archived": ArchiveIcon,
 };
 
-const SETTINGS_NAV_ITEMS: ReadonlyArray<{
-  label: string;
-  to: SettingsPath;
-  icon: ComponentType<{ className?: string }>;
-}> = (Object.keys(SETTINGS_SECTION_LABELS) as SettingsPath[]).map((to) => ({
-  to,
-  label: SETTINGS_SECTION_LABELS[to],
-  icon: SETTINGS_SECTION_ICONS[to],
-}));
+const SETTINGS_NAV_PATHS: ReadonlyArray<SettingsPath> = Object.keys(
+  SETTINGS_SECTION_LABEL_KEYS,
+) as SettingsPath[];
 
 function SettingsSectionIcon({ to }: { to: SettingsPath }) {
   const Icon = SETTINGS_SECTION_ICONS[to];
@@ -105,13 +101,14 @@ function SettingsSectionIcon({ to }: { to: SettingsPath }) {
 }
 
 export function SettingsSidebarNav({ pathname }: { pathname: string }) {
+  const t = useTranslate();
   const navigate = useNavigate();
   const currentHash = useLocation({ select: (location) => location.hash });
   const currentSearch = useLocation({ select: (location) => location.search });
   const scopeSearch = useMemo(() => validateSettingsScopeSearch(currentSearch), [currentSearch]);
-  const navItems = SETTINGS_NAV_ITEMS.filter(
-    (item) => item.to !== "/settings/projects" || isSettingsOverviewVisible(scopeSearch),
-  );
+  const navItems = SETTINGS_NAV_PATHS.filter(
+    (to) => to !== "/settings/projects" || isSettingsOverviewVisible(scopeSearch),
+  ).map((to) => ({ to, label: settingsSectionLabel(to, t), icon: SETTINGS_SECTION_ICONS[to] }));
   const { isMobile, setOpenMobile, open, setOpen } = useSidebar();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
@@ -312,7 +309,7 @@ export function SettingsSidebarNav({ pathname }: { pathname: string }) {
                           {item.title}
                         </span>
                         <span className="block truncate text-2xs text-sidebar-muted-foreground/75">
-                          {SETTINGS_SECTION_LABELS[item.to]}
+                          {settingsSectionLabel(item.to, t)}
                         </span>
                       </span>
                     </SidebarMenuButton>
