@@ -1,3 +1,4 @@
+import { formatPercent, i18n } from "@t3tools/shared/i18n";
 import {
   useId,
   useRef,
@@ -145,7 +146,7 @@ export function ColorSaturationValuePlane({
             value={value[axis] * 100}
             aria-label={`${label} ${axisLabel.toLowerCase()}`}
             aria-describedby={instructionsId}
-            aria-valuetext={`${Math.round(value[axis] * 100)}%`}
+            aria-valuetext={formatPercent(value[axis], i18n.locale)}
             className="peer sr-only"
             onKeyDown={(event) => handleKeyDown(event, axis)}
             onChange={(event) =>

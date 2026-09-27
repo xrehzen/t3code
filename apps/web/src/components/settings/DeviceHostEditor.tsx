@@ -2,6 +2,7 @@ import { useState } from "react";
 import * as Option from "effect/Option";
 import type { SshDeviceHostConfig } from "@t3tools/contracts";
 import { CheckIcon, MonitorIcon, XIcon } from "lucide-react";
+import { useTranslate } from "../../hooks/useI18n";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Spinner } from "../ui/spinner";
@@ -37,6 +38,7 @@ export function DeviceHostEditor({
   onSave: (host: SshDeviceHostConfig) => void;
   onClose: () => void;
 }) {
+  const t = useTranslate();
   const [draft, setDraft] = useState(host);
   const { checks, testConnection } = useHostConnectionChecks(targets);
   const results = checks[deviceHostConnectionKey(draft)];
@@ -64,44 +66,54 @@ export function DeviceHostEditor({
         }
       >
         <DialogHeader>
-          <DialogTitle>{isNew ? "Add device host" : "Edit device host"}</DialogTitle>
+          <DialogTitle>
+            {t(
+              isNew
+                ? "settings.deviceHostEditor.title.new"
+                : "settings.deviceHostEditor.title.edit",
+            )}
+          </DialogTitle>
           <DialogDescription>
             {targets.length === 1
-              ? `Connect from ${targets[0]?.label}.`
-              : `Connect from ${targets.length} selected environments.`}{" "}
-            Hosts on the same machine are skipped.
+              ? t("settings.deviceHostEditor.descriptionOne", {
+                  environment: targets[0]?.label ?? "",
+                })
+              : t("settings.deviceHostEditor.descriptionMany", { count: targets.length })}{" "}
+            {t("settings.deviceHostEditor.descriptionTail")}
           </DialogDescription>
         </DialogHeader>
         <DialogPanel>
           <label className="block space-y-1.5 text-sm">
-            <span>Name</span>
+            <span>{t("settings.deviceHostEditor.name")}</span>
             <Input
               autoFocus
               required
               value={draft.label}
               disabled={busy}
               onChange={(event) => setDraft({ ...draft, label: event.target.value })}
-              placeholder="Mac mini"
+              placeholder={t("settings.deviceHostEditor.namePlaceholder")}
             />
           </label>
           <label className="block space-y-1.5 text-sm">
-            <span>SSH target</span>
+            <span>{t("settings.deviceHostEditor.sshTarget")}</span>
             <Input
               required
               value={draft.target}
               disabled={busy}
               onChange={(event) => setDraft({ ...draft, target: event.target.value })}
-              placeholder="user@host or SSH alias"
+              placeholder={t("settings.deviceHostEditor.sshTargetPlaceholder")}
             />
           </label>
           <details
             open={host.port !== undefined || host.identityFile !== undefined || undefined}
             className="text-sm"
           >
-            <summary className="cursor-pointer text-muted-foreground">SSH options</summary>
+            <summary className="cursor-pointer text-muted-foreground">
+              {t("settings.deviceHostEditor.sshOptions")}
+            </summary>
             <div className="mt-3 grid grid-cols-[minmax(0,1fr)_7rem] gap-3">
               <label className="block space-y-1.5">
-                <span>Identity file</span>
+                <span>{t("settings.deviceHostEditor.identityFile")}</span>
                 <Input
                   value={draft.identityFile ?? ""}
                   disabled={busy}
@@ -111,11 +123,11 @@ export function DeviceHostEditor({
                       event.target.value ? { ...rest, identityFile: event.target.value } : rest,
                     );
                   }}
-                  placeholder="SSH config default"
+                  placeholder={t("settings.deviceHostEditor.identityFilePlaceholder")}
                 />
               </label>
               <label className="block space-y-1.5">
-                <span>Port</span>
+                <span>{t("settings.deviceHostEditor.port")}</span>
                 <Input
                   type="number"
                   min={1}
@@ -128,24 +140,27 @@ export function DeviceHostEditor({
                       event.target.value ? { ...rest, port: Number(event.target.value) } : rest,
                     );
                   }}
-                  placeholder="Default"
+                  placeholder={t("settings.deviceHostEditor.portPlaceholder")}
                 />
               </label>
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              Optional. Resolved separately on each environment.
+              {t("settings.deviceHostEditor.optionalHint")}
             </p>
           </details>
           <div className="rounded-lg border border-border/60">
             <div className="flex items-center justify-between gap-3 px-3 py-2.5">
               <p role="status" className="text-xs text-muted-foreground">
                 {checking
-                  ? "Checking environments…"
+                  ? t("settings.deviceHostEditor.checking")
                   : results
                     ? failed
-                      ? `${failed} of ${targets.length} failed`
-                      : "Connection checks passed"
-                    : "Check access before saving"}
+                      ? t("settings.deviceHostEditor.checkFailed", {
+                          failed,
+                          total: targets.length,
+                        })
+                      : t("settings.deviceHostEditor.checkPassed")
+                    : t("settings.deviceHostEditor.checkBeforeSaving")}
               </p>
               <Button
                 type="button"
@@ -156,7 +171,7 @@ export function DeviceHostEditor({
                   if (Option.isSome(input)) void testConnection(input.value);
                 }}
               >
-                {checking ? <Spinner size="xs" /> : null} Test connection
+                {checking ? <Spinner size="xs" /> : null} {t("settings.deviceHosts.testConnection")}
               </Button>
             </div>
             {results ? (

@@ -1,3 +1,4 @@
+import { formatPercent, i18n } from "@t3tools/shared/i18n";
 import { useEffect, useRef, useState } from "react";
 
 import { cn } from "~/lib/utils";
@@ -38,7 +39,7 @@ export function ZoomIndicator({ zoomFactor }: Props) {
     };
   }, [zoomFactor]);
 
-  const percent = `${Math.round(zoomFactor * 100)}%`;
+  const percent = formatPercent(zoomFactor, i18n.locale);
 
   return (
     <div

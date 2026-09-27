@@ -93,6 +93,19 @@ export type MessageTables = Readonly<Record<SupportedLocale, Partial<Record<Mess
 
 export const defaultTables: MessageTables = catalogs;
 
+/**
+ * Percentage that reads correctly in the given locale.
+ *
+ * Turkish puts the sign before the number ("%50"), English after it ("50%"),
+ * so a template literal gets it wrong in one of the two. A scale factor is
+ * passed as the fraction it is — `0.5` for 50%.
+ */
+export function formatPercent(fraction: number, locale: SupportedLocale): string {
+  return new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 0 }).format(
+    fraction,
+  );
+}
+
 export class I18n {
   private _locale: SupportedLocale = DEFAULT_LOCALE;
   private readonly listeners = new Set<() => void>();

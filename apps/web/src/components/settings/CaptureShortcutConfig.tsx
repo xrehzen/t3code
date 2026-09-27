@@ -5,6 +5,7 @@ import {
   type DesktopSnapShotState,
 } from "@t3tools/contracts";
 import { parseKeybindingShortcut } from "@t3tools/shared/keybindings";
+import { i18n, type Translate } from "@t3tools/shared/i18n";
 import { FileDiff } from "@pierre/diffs/react";
 import { parseDiffFromFile } from "@pierre/diffs";
 import { useMemo, useState } from "react";
@@ -18,6 +19,10 @@ import { shortcutToKeybindingInput } from "./KeybindingsSettings.logic";
 import { useSnapShotShortcutRecorder } from "./useSnapShotShortcutRecorder";
 
 const DEFAULT_SHORTCUT = parseKeybindingShortcut("Ctrl+Shift+2")!;
+
+// This panel is exercised as a plain function (no renderer), so it reads the
+// process-wide resolver instead of subscribing with `useTranslate`.
+const t: Translate = i18n.t;
 
 /** Wizard-owned config review; config contents never leave the desktop bridge. */
 export function CaptureShortcutConfig({
@@ -105,7 +110,7 @@ export function CaptureShortcutConfig({
       );
     } catch (cause) {
       setError({
-        message: "Couldn't prepare the changes. Check Advanced for help.",
+        message: t("settings.snapshotConfig.prepareFailed"),
         ...(cause instanceof Error ? { detail: cause.message } : {}),
       });
     } finally {
@@ -122,14 +127,16 @@ export function CaptureShortcutConfig({
       if (!applied.warning && preview.operation === "install" && onComplete) {
         toastManager.add({
           type: "success",
-          title: "Shortcut saved",
-          description: `Use ${preview.shortcut} from another app.`,
+          title: t("settings.snapshotConfig.saved"),
+          description: t("settings.snapshotConfig.savedDescription", {
+            shortcut: preview.shortcut,
+          }),
         });
         await onComplete();
       }
     } catch (cause) {
       setError({
-        message: "Couldn't save your shortcut. Review the changes and try again.",
+        message: t("settings.snapshotConfig.saveFailed"),
         ...(cause instanceof Error ? { detail: cause.message } : {}),
       });
       setPreview(null);
@@ -142,38 +149,38 @@ export function CaptureShortcutConfig({
     <div className="space-y-4 text-sm">
       {!result ? (
         <div className="flex items-center justify-between gap-3">
-          <span>Shortcut</span>
+          <span>{t("settings.snapshotConfig.shortcutLabel")}</span>
           {recorder.input}
         </div>
       ) : null}
       {recorder.recording ? (
         <p role="status" className="text-xs text-muted-foreground">
-          Press your shortcut. Esc cancels.
+          {t("settings.snapshot.recordingHint")}
         </p>
       ) : null}
       {result ? (
         <p role="status">
           {result.warning
-            ? "Saved, but the shortcut needs attention. Check Advanced for help."
+            ? t("settings.snapshotConfig.savedNeedsAttention")
             : preview?.operation === "remove"
-              ? "Shortcut removed."
-              : `Use ${preview?.shortcut} from another app to capture a window.`}
+              ? t("settings.snapshotConfig.removed")
+              : t("settings.snapshotConfig.useToCapture", { shortcut: preview?.shortcut ?? "" })}
         </p>
       ) : preview ? (
         <>
           <p className="text-muted-foreground">
             {changed
               ? preview.operation === "remove"
-                ? "Review the change below to remove your shortcut."
-                : "Review the change below, then save your shortcut."
+                ? t("settings.snapshotConfig.reviewRemove")
+                : t("settings.snapshotConfig.reviewSave")
               : preview.operation === "remove"
-                ? "There's no capture shortcut to remove."
-                : "This shortcut is already set up."}
+                ? t("settings.snapshotConfig.nothingToRemove")
+                : t("settings.snapshotConfig.alreadySetUp")}
           </p>
           {diff ? (
             <div
               className="max-h-80 overflow-auto rounded-lg border text-xs"
-              aria-label="Shortcut changes"
+              aria-label={t("settings.snapshotConfig.diffAria")}
             >
               <FileDiff
                 fileDiff={diff}
@@ -187,7 +194,7 @@ export function CaptureShortcutConfig({
           ) : null}
           {changed ? (
             <p className="text-xs text-muted-foreground">
-              Only these changes will be saved. We'll keep a backup.
+              {t("settings.snapshotConfig.backupNote")}
             </p>
           ) : null}
           <div className="flex gap-2">
@@ -201,35 +208,34 @@ export function CaptureShortcutConfig({
                 onClick={() => void apply()}
               >
                 {working === "writing"
-                  ? "Saving…"
+                  ? t("settings.snapshotConfig.saving")
                   : changed
                     ? preview.operation === "install"
-                      ? "Save shortcut"
-                      : "Remove shortcut"
-                    : "Done"}
+                      ? t("settings.snapshotConfig.saveShortcut")
+                      : t("action.removeShortcut")
+                    : t("action.done")}
               </Button>
             ) : null}
             <Button variant="ghost" disabled={actionBusy} onClick={() => setPreview(null)}>
-              Cancel
+              {t("action.cancel")}
             </Button>
           </div>
         </>
       ) : (
         <>
-          <p className="text-muted-foreground">
-            Allow T3 Code to read your desktop settings. You'll review any changes here before
-            saving.
-          </p>
+          <p className="text-muted-foreground">{t("settings.snapshotConfig.intro")}</p>
           <Button
             disabled={actionBusy || !supported}
             aria-busy={working === "reading"}
             onClick={() => void read()}
           >
-            {working === "reading" ? "Preparing changes…" : "Review changes"}
+            {working === "reading"
+              ? t("settings.snapshotConfig.preparing")
+              : t("settings.snapshotConfig.reviewChanges")}
           </Button>
           {!supported ? (
             <p className="text-xs text-muted-foreground">
-              Update T3 Code to finish setting up your shortcut.
+              {t("settings.snapshotConfig.unsupported")}
             </p>
           ) : null}
         </>
@@ -242,29 +248,35 @@ export function CaptureShortcutConfig({
       {state.shortcutActionRegistered === false && state.shortcutMessage ? (
         <p role="status" className="text-muted-foreground">
           {state.shortcutPending
-            ? "Connecting to your desktop…"
-            : "Restart T3 Code to finish connecting your shortcut."}
+            ? t("settings.snapshotConfig.connecting")
+            : t("settings.snapshotConfig.restartToConnect")}
         </p>
       ) : null}
       <details className="text-xs text-muted-foreground">
-        <summary className="cursor-pointer">Advanced</summary>
+        <summary className="cursor-pointer">{t("action.showAdvanced")}</summary>
         <div className="mt-3 space-y-3">
           {error?.detail || result?.warning ? (
             <div className="space-y-1">
-              <p className="font-medium text-foreground">Troubleshooting</p>
+              <p className="font-medium text-foreground">
+                {t("settings.snapshotConfig.troubleshooting")}
+              </p>
               <p className="break-words">{error?.detail ?? result?.warning}</p>
             </div>
           ) : null}
           <div className="space-y-1">
-            <p className="font-medium text-foreground">Settings file</p>
+            <p className="font-medium text-foreground">
+              {t("settings.snapshotConfig.settingsFile")}
+            </p>
             <p className="break-all font-mono">
               {preview?.path ??
                 state.shortcutConfigPath ??
                 (niri ? "~/.config/niri/config.kdl" : "~/.config/hypr/hyprland.conf")}
             </p>
-            {niri ? <p>T3 Code also reads any files included by this file.</p> : null}
+            {niri ? <p>{t("settings.snapshotConfig.niriIncludes")}</p> : null}
             {preview && preview.resolvedPath !== preview.path ? (
-              <p className="break-all">Linked to {preview.resolvedPath}. The link will be kept.</p>
+              <p className="break-all">
+                {t("settings.snapshotConfig.linkedPath", { path: preview.resolvedPath })}
+              </p>
             ) : null}
           </div>
           <div className="flex flex-wrap gap-2">
@@ -274,7 +286,7 @@ export function CaptureShortcutConfig({
               disabled={actionBusy || !supported}
               onClick={() => void read(true)}
             >
-              Choose a different file…
+              {t("settings.snapshotConfig.chooseDifferentFile")}
             </Button>
             <Button
               size="sm"
@@ -282,7 +294,7 @@ export function CaptureShortcutConfig({
               disabled={actionBusy || !supported}
               onClick={() => void read(customFile, "remove")}
             >
-              Remove shortcut…
+              {t("settings.snapshotConfig.removeShortcutEllipsis")}
             </Button>
             {result ? (
               <Button
@@ -291,23 +303,33 @@ export function CaptureShortcutConfig({
                 disabled={actionBusy || !supported}
                 onClick={() => void read()}
               >
-                Review changes
+                {t("settings.snapshotConfig.reviewChanges")}
               </Button>
             ) : null}
           </div>
           <p>
-            Use your desktop's shortcut settings file.{" "}
-            {niri
-              ? "A custom --config or NIRI_CONFIG can change its location."
-              : "On Omarchy, use your own bindings file, not its defaults."}
+            {t("settings.snapshotConfig.desktopFileHint", {
+              note: t(
+                niri
+                  ? "settings.snapshotConfig.niriCustomConfig"
+                  : "settings.snapshotConfig.omarchyNote",
+              ),
+            })}
           </p>
-          {result?.backupPath ? <p className="break-all">Backup: {result.backupPath}</p> : null}
-          <p className="font-medium text-foreground">Manual setup</p>
+          {result?.backupPath ? (
+            <p className="break-all">
+              {t("settings.snapshotConfig.backup", { path: result.backupPath })}
+            </p>
+          ) : null}
+          <p className="font-medium text-foreground">{t("settings.snapshotConfig.manualSetup")}</p>
           <p>
-            {niri
-              ? "Paste this inside binds { … } in your Niri config, then save."
-              : "Add this binding to your Hyprland config, then save."}{" "}
-            Change the keys if needed.
+            {t("settings.snapshotConfig.manualSetupHint", {
+              action: t(
+                niri
+                  ? "settings.snapshotConfig.niriManual"
+                  : "settings.snapshotConfig.hyprlandManual",
+              ),
+            })}
           </p>
           <pre className="max-h-40 overflow-auto whitespace-pre-wrap break-all rounded-xl bg-muted/50 p-3">
             {state.shortcutBinding}
@@ -320,12 +342,11 @@ export function CaptureShortcutConfig({
               if (state.shortcutBinding) copyToClipboard(state.shortcutBinding);
             }}
           >
-            {isCopied ? "Copied" : "Copy shortcut"}
+            {isCopied
+              ? t("settings.diagnostics.copied")
+              : t("settings.snapshotConfig.copyShortcut")}
           </Button>
-          <p>
-            Turn capture off in T3 Code to stop it. Remove the shortcut from {desktop} to free up
-            the keys.
-          </p>
+          <p>{t("settings.snapshotConfig.turnOff", { desktop })}</p>
           {state.shortcutActionRegistered === false ? (
             <p role="status">{state.shortcutMessage}</p>
           ) : null}
@@ -336,7 +357,7 @@ export function CaptureShortcutConfig({
               disabled={actionBusy || state.shortcutActionRegistered === false}
               onClick={() => void onComplete()}
             >
-              I've added the shortcut
+              {t("settings.snapshotConfig.addedShortcut")}
             </Button>
           ) : null}
         </div>

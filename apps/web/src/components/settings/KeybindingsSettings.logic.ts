@@ -1,3 +1,4 @@
+import { i18n, type Translate } from "@t3tools/shared/i18n";
 import {
   STATIC_KEYBINDING_COMMANDS,
   type KeybindingCommand,
@@ -296,15 +297,21 @@ export function buildKeybindingCommandOptions(
   );
 }
 
-export function commandLabel(command: KeybindingCommand): string {
-  if (command === "thread.copyReference") return "Pull Request: Copy Link or Thread ID";
+export function commandLabel(command: KeybindingCommand, t: Translate = i18n.t): string {
+  if (command === "thread.copyReference") {
+    return t("settings.keybindings.command.pullRequestReference");
+  }
   const usageMetric = METRIC_OPTIONS.find((option) => option.command === command);
-  if (usageMetric) return `Usage: ${usageMetric.label}`;
+  if (usageMetric) return t("settings.keybindings.command.usage", { label: usageMetric.label });
   const usagePeriod = WINDOW_OPTIONS.find((option) => option.command === command);
-  if (usagePeriod) return `Usage: Period: ${usagePeriod.label}`;
+  if (usagePeriod) {
+    return t("settings.keybindings.command.usagePeriod", { label: usagePeriod.label });
+  }
   const raw = String(command);
   if (raw.startsWith("script.") && raw.endsWith(".run")) {
-    return `Run Script: ${titleCaseCommandSegment(raw.slice("script.".length, -".run".length))}`;
+    return t("settings.keybindings.command.runScript", {
+      script: titleCaseCommandSegment(raw.slice("script.".length, -".run".length)),
+    });
   }
   return raw.split(".").map(titleCaseCommandSegment).join(": ");
 }

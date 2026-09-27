@@ -1,5 +1,6 @@
 "use client";
 
+import { formatPercent, i18n } from "@t3tools/shared/i18n";
 import type { DesktopPreviewColorScheme, EnvironmentId } from "@t3tools/contracts";
 import { Minus, MoreVertical, Plus as PlusIcon, RotateCcw } from "lucide-react";
 
@@ -91,7 +92,7 @@ export function PreviewMoreMenu({
     void op(tabId).catch(() => undefined);
   };
 
-  const zoomLabel = `${Math.round(zoomFactor * 100)}%`;
+  const zoomLabel = formatPercent(zoomFactor, i18n.locale);
   return (
     <Menu>
       <Tooltip>

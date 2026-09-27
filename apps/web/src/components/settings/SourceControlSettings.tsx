@@ -17,7 +17,9 @@ import {
   getBackgroundActivityPresetSettings,
   resolveServerBackgroundActivitySettings,
 } from "@t3tools/shared/backgroundActivitySettings";
+import { i18n, type Translate } from "@t3tools/shared/i18n";
 
+import { useTranslate } from "../../hooks/useI18n";
 import { useScopedSettings, useUpdateScopedSettings } from "./useScopedSettings";
 import { useSettingsScope } from "./SettingsScopeContext";
 import { ProjectDefaultsSettings } from "./ProjectDefaultsSettings";
@@ -143,26 +145,31 @@ function isVcsNotReady(item: VcsDiscoveryItem | SourceControlProviderDiscoveryIt
   return !isProviderDiscoveryItem(item) && !item.implemented;
 }
 
-function authPresentation(auth: SourceControlProviderAuth): {
+function authPresentation(
+  auth: SourceControlProviderAuth,
+  t: Translate = i18n.t,
+): {
   readonly label: string;
   readonly badge: "warning" | null;
 } {
   if (auth.status === "authenticated") {
-    return { label: "Authenticated", badge: null };
+    return { label: t("settings.sourceControl.auth.authenticated"), badge: null };
   }
   if (auth.status === "unauthenticated") {
-    return { label: "Not authenticated", badge: "warning" };
+    return { label: t("settings.sourceControl.auth.unauthenticated"), badge: "warning" };
   }
-  return { label: "Status unknown", badge: null };
+  return { label: t("settings.sourceControl.auth.unknown"), badge: null };
 }
 
 function RedactedAccount(props: { readonly account: string | null }) {
+  const t = useTranslate();
+
   return (
     <RedactedSensitiveText
       value={props.account}
-      ariaLabel="Toggle source control account visibility"
-      revealTooltip="Click to reveal account"
-      hideTooltip="Click to hide account"
+      ariaLabel={t("settings.sourceControl.account.toggleAria")}
+      revealTooltip={t("settings.sourceControl.account.revealTooltip")}
+      hideTooltip={t("settings.sourceControl.account.hideTooltip")}
     />
   );
 }
@@ -270,7 +277,7 @@ function DiscoveryItemRow({
     ? item.status === "available" && item.auth.status === "authenticated"
     : item.status === "available" && item.implemented;
   const auth = isProviderDiscoveryItem(item) ? item.auth : null;
-  const authStatus = auth ? authPresentation(auth) : null;
+  const authStatus = auth ? authPresentation(auth, i18n.t) : null;
   const authAccount = auth ? optionLabel(auth.account) : null;
   const [isExpanded, setIsExpanded] = useState(false);
   const hasDetails = children !== undefined;
@@ -281,6 +288,8 @@ function DiscoveryItemRow({
       setIsExpanded(true);
     }
   }, [item.kind, searchTargetId]);
+
+  const t = useTranslate();
 
   return (
     <div
@@ -318,7 +327,7 @@ function DiscoveryItemRow({
                 variant="ghost-muted"
                 onClick={() => setIsExpanded((open) => !open)}
                 aria-expanded={isExpanded}
-                aria-label={`Toggle ${item.label} details`}
+                aria-label={t("settings.sourceControl.itemDetailsAria", { item: item.label })}
               >
                 <ChevronDownIcon
                   className={cn("size-3.5 transition-transform", isExpanded && "rotate-180")}
@@ -326,7 +335,11 @@ function DiscoveryItemRow({
               </Button>
             ) : null}
             {!isVcsNotReady(item) ? (
-              <Switch checked={enabled} disabled aria-label={`${item.label} availability`} />
+              <Switch
+                checked={enabled}
+                disabled
+                aria-label={t("settings.sourceControl.availabilityAria", { item: item.label })}
+              />
             ) : null}
           </div>
         </div>
@@ -344,6 +357,7 @@ function DiscoveryItemRow({
 }
 
 function GitFetchIntervalSettings() {
+  const t = useTranslate();
   const settings = useScopedSettings();
   const updateSettings = useUpdateScopedSettings();
   const resolvedBackgroundActivity = resolveServerBackgroundActivitySettings(settings);
@@ -365,11 +379,7 @@ function GitFetchIntervalSettings() {
         <div className="min-w-0 space-y-1">
           <div className="flex min-w-0 items-center gap-1">
             <span className="text-xs font-medium text-foreground">{setting.title}</span>
-            <PolicyTooltip>
-              This interval is configured for Git only. The shared Background activity policy still
-              decides whether Git refreshes may run when the timer fires. Custom intervals appear as
-              Advanced in General settings.
-            </PolicyTooltip>
+            <PolicyTooltip>{t("settings.sourceControl.fetchIntervalPolicyTooltip")}</PolicyTooltip>
             <span
               className={cn(
                 "inline-flex size-5 shrink-0 items-center justify-center transition-opacity",
@@ -379,7 +389,7 @@ function GitFetchIntervalSettings() {
             >
               {canResetFetchInterval ? (
                 <SettingResetButton
-                  label="fetch interval"
+                  label={t("settings.sourceControl.fetchIntervalResetLabel")}
                   onClick={() =>
                     updateSettings(
                       backgroundActivityOverrideSettings(settings.backgroundActivity, {
@@ -411,12 +421,16 @@ function GitFetchIntervalSettings() {
             }
           >
             <NumberFieldGroup>
-              <NumberFieldDecrement aria-label="Decrease fetch interval" />
-              <NumberFieldInput aria-label="Automatic Git fetch interval in seconds" />
-              <NumberFieldIncrement aria-label="Increase fetch interval" />
+              <NumberFieldDecrement
+                aria-label={t("settings.sourceControl.fetchIntervalDecreaseAria")}
+              />
+              <NumberFieldInput aria-label={t("settings.sourceControl.fetchIntervalAria")} />
+              <NumberFieldIncrement
+                aria-label={t("settings.sourceControl.fetchIntervalIncreaseAria")}
+              />
             </NumberFieldGroup>
           </NumberField>
-          <span className="text-xs text-muted-foreground">seconds</span>
+          <span className="text-xs text-muted-foreground">{t("settings.seconds")}</span>
         </div>
       </div>
     </SettingsSearchTarget>
@@ -470,28 +484,34 @@ function EmptySourceControlDiscovery({
   readonly isPending: boolean;
   readonly onScan: () => void;
 }) {
+  const t = useTranslate();
   const hasError = error !== null;
 
   return (
-    <SettingsSection id={searchableSetting("source-control").id} title="Server environment">
+    <SettingsSection
+      id={searchableSetting("source-control").id}
+      title={t("settings.sourceControl.section.serverEnvironment")}
+    >
       <Empty>
         <EmptyMedia variant="icon">
           <PullRequestGlyph.pullRequest />
         </EmptyMedia>
         <EmptyHeader>
           <EmptyTitle>
-            {hasError ? "Could not scan the server environment" : "Nothing detected yet"}
+            {t(
+              hasError
+                ? "settings.sourceControl.empty.scanFailed"
+                : "settings.sourceControl.empty.nothingDetected",
+            )}
           </EmptyTitle>
           <EmptyDescription>
-            {hasError
-              ? error
-              : "Install Git on the server, add optional hosting integrations or credentials your workspace needs, then rescan."}
+            {hasError ? error : t("settings.sourceControl.empty.nothingDetectedDescription")}
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
           <Button size="sm" variant="outline" onClick={onScan} disabled={isPending}>
             <RefreshIcon size="sm" refreshing={isPending} />
-            Scan
+            {t("settings.sourceControl.empty.scan")}
           </Button>
         </EmptyContent>
       </Empty>
@@ -500,6 +520,7 @@ function EmptySourceControlDiscovery({
 }
 
 export function SourceControlSettingsPanel() {
+  const t = useTranslate();
   const { scope, environment, connectedEnvironments } = useSettingsScope();
   // Discovery scans one machine's tools, so it shows the representative
   // environment (named in the section title when several are selected);
@@ -507,7 +528,7 @@ export function SourceControlSettingsPanel() {
   const environmentId =
     environment?.connection.phase === "connected" ? environment.environmentId : null;
   const aggregate = scope.environmentIds.length !== 1 && connectedEnvironments.length > 1;
-  const environmentSuffix = aggregate && environment ? ` · ${environment.label}` : "";
+  const environmentScope = aggregate && environment ? environment.label : null;
   const discovery = useEnvironmentQuery(
     environmentId === null
       ? null
@@ -532,13 +553,13 @@ export function SourceControlSettingsPanel() {
             variant="ghost-muted"
             onClick={handleScan}
             disabled={discovery.isPending}
-            aria-label="Rescan server environment"
+            aria-label={t("settings.sourceControl.rescanAria")}
           >
             <RefreshIcon refreshing={discovery.isPending} />
           </Button>
         }
       />
-      <TooltipPopup side="top">Rescan Git and hosting integrations</TooltipPopup>
+      <TooltipPopup side="top">{t("settings.sourceControl.rescanTooltip")}</TooltipPopup>
     </Tooltip>
   );
 
@@ -546,25 +567,38 @@ export function SourceControlSettingsPanel() {
     <SettingsPageContainer>
       <ProjectDefaultsSettings category="source-control" />
       {environmentId === null ? (
-        <SettingsSection id={searchableSetting("source-control").id} title="Server environment">
+        <SettingsSection
+          id={searchableSetting("source-control").id}
+          title={t("settings.sourceControl.section.serverEnvironment")}
+        >
           <p className="px-4 py-3 text-sm text-muted-foreground">
-            Connect an environment to inspect its version control tools and hosting integrations.
+            {t("settings.sourceControl.disconnectedDescription")}
           </p>
         </SettingsSection>
       ) : isInitialScanPending ? (
         <>
           <SourceControlSectionSkeleton
-            title={`Version Control${environmentSuffix}`}
+            title={t(
+              environmentScope
+                ? "settings.sourceControl.section.versionControlScoped"
+                : "settings.sourceControl.section.versionControl",
+              environmentScope ? { environment: environmentScope } : undefined,
+            )}
             headerAction={scanButton}
           />
-          <SourceControlSectionSkeleton title="Source Control Providers" />
+          <SourceControlSectionSkeleton title={t("settings.sourceControl.section.providers")} />
         </>
       ) : hasDiscoveryItems ? (
         <>
           {hasVersionControlSystems ? (
             <SettingsSection
               id={searchableSetting("source-control").id}
-              title={`Version Control${environmentSuffix}`}
+              title={t(
+                environmentScope
+                  ? "settings.sourceControl.section.versionControlScoped"
+                  : "settings.sourceControl.section.versionControl",
+                environmentScope ? { environment: environmentScope } : undefined,
+              )}
               headerAction={scanButton}
             >
               {result.versionControlSystems.map((item) => (
@@ -578,11 +612,14 @@ export function SourceControlSettingsPanel() {
           {result.sourceControlProviders.length > 0 ? (
             <SettingsSection
               id={hasVersionControlSystems ? undefined : searchableSetting("source-control").id}
-              title={
+              title={t(
                 hasVersionControlSystems
-                  ? "Source Control Providers"
-                  : `Source Control Providers${environmentSuffix}`
-              }
+                  ? "settings.sourceControl.section.providers"
+                  : environmentScope
+                    ? "settings.sourceControl.section.providersScoped"
+                    : "settings.sourceControl.section.providers",
+                environmentScope ? { environment: environmentScope } : undefined,
+              )}
               headerAction={hasVersionControlSystems ? null : scanButton}
             >
               {result.sourceControlProviders.map((item) => (
