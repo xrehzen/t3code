@@ -1,3 +1,4 @@
+import { compareForLocale, i18n } from "@t3tools/shared/i18n";
 import type { EnvironmentId, EnvironmentMachineKind } from "@t3tools/contracts";
 
 import type { SidebarProjectSnapshot } from "~/sidebarProjectGrouping";
@@ -22,7 +23,7 @@ export function ProjectEnvironmentBadge(props: {
   const remoteMembers = props.group.memberProjects
     .filter((member) => member.environmentId !== props.primaryEnvironmentId)
     .map((member) => ({ ...member, environmentLabel: member.environmentLabel ?? "Remote" }))
-    .sort((a, b) => a.environmentLabel.localeCompare(b.environmentLabel));
+    .sort((a, b) => compareForLocale(a.environmentLabel, b.environmentLabel, i18n.locale));
   const first = remoteMembers[0];
   if (!first) return null;
   const labels = remoteMembers

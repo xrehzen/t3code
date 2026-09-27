@@ -1,3 +1,4 @@
+import { i18n } from "@t3tools/shared/i18n";
 import { worktreeSetupAgentStarted } from "@t3tools/client-runtime/worktree-setup";
 export { worktreeSetupAgentStarted } from "@t3tools/client-runtime/worktree-setup";
 import * as Equal from "effect/Equal";
@@ -50,7 +51,7 @@ function singleToolCallLabel(entry: WorkLogEntry): string {
   const command = entry.command?.trim();
   if (command) return command;
   const heading = normalizeCompactToolLabel(entry.toolTitle || entry.label);
-  return `${heading.charAt(0).toUpperCase()}${heading.slice(1)}`;
+  return `${heading.charAt(0).toLocaleUpperCase(i18n.locale)}${heading.slice(1)}`;
 }
 
 export function workEntryDisplayLabel(entry: WorkLogEntry, workspaceRoot: string | undefined) {
@@ -66,7 +67,7 @@ export function workEntryDisplayLabel(entry: WorkLogEntry, workspaceRoot: string
       : `${path} +${entry.changedFiles!.length - 1} more`;
   }
   const heading = normalizeCompactToolLabel(entry.toolTitle || entry.label);
-  return `${heading.charAt(0).toUpperCase()}${heading.slice(1)}`;
+  return `${heading.charAt(0).toLocaleUpperCase(i18n.locale)}${heading.slice(1)}`;
 }
 
 export function liveWorkEntryLabel(

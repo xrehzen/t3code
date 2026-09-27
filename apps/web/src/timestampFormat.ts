@@ -12,7 +12,13 @@ function getTimestampFormatOptions(
   };
 
   if (timestampFormat === "locale") {
-    return baseOptions;
+    // "locale" means follow the host, so hour12 has to stay unset — but only
+    // because the locale itself decides. Leaving both unset made the same
+    // setting read 12-hour in en-US and 24-hour in tr, which is a silent
+    // difference between the desktop and the browser for one saved preference.
+    // Pinning it to the active locale makes the outcome follow the UI language
+    // the user actually chose.
+    return i18n.locale === "tr" ? { ...baseOptions, hour12: false } : baseOptions;
   }
 
   return {

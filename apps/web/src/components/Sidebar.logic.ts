@@ -1,3 +1,4 @@
+import { compareForLocale, DEFAULT_LOCALE, type SupportedLocale } from "@t3tools/shared/i18n";
 import { foldForSearch } from "@t3tools/shared/searchRanking";
 import { threadPullRequestSearchTerms } from "@t3tools/shared/threadPullRequests";
 import * as React from "react";
@@ -1161,6 +1162,7 @@ export function sortProjectsForSidebar<
   projects: readonly TProject[],
   threads: readonly TThread[],
   sortOrder: SidebarProjectSortOrder,
+  locale: SupportedLocale = DEFAULT_LOCALE,
 ): TProject[] {
   const threadsByProjectId = new Map<string, TThread[]>();
   for (const thread of threads) {
@@ -1173,7 +1175,9 @@ export function sortProjectsForSidebar<
     projects,
     sortOrder,
     (project) => threadsByProjectId.get(project.id) ?? [],
-    (left, right) => left.title.localeCompare(right.title) || left.id.localeCompare(right.id),
+    (left, right) =>
+      compareForLocale(left.title, right.title, locale) ||
+      compareForLocale(left.id, right.id, locale),
   );
 }
 
@@ -1184,6 +1188,7 @@ export function sortLogicalProjectsForSidebar<
   projects: readonly TProject[],
   threads: readonly TThread[],
   sortOrder: SidebarProjectSortOrder,
+  locale: SupportedLocale = DEFAULT_LOCALE,
 ): TProject[] {
   const groupKeyByProjectRef = new Map(
     projects.flatMap((project) =>
@@ -1211,7 +1216,8 @@ export function sortLogicalProjectsForSidebar<
     sortOrder,
     (project) => threadsByProjectKey.get(project.projectKey) ?? [],
     (left, right) =>
-      left.title.localeCompare(right.title) || left.projectKey.localeCompare(right.projectKey),
+      compareForLocale(left.title, right.title, locale) ||
+      compareForLocale(left.projectKey, right.projectKey, locale),
   );
 }
 
@@ -1227,6 +1233,7 @@ export function sortScopedProjectsForSidebar<
   projects: readonly TProject[],
   threads: readonly TThread[],
   sortOrder: SidebarProjectSortOrder,
+  locale: SupportedLocale = DEFAULT_LOCALE,
 ): TProject[] {
   const scopedKey = (environmentId: string, projectId: string) =>
     `${environmentId}\u0000${projectId}`;
@@ -1246,8 +1253,8 @@ export function sortScopedProjectsForSidebar<
     sortOrder,
     (project) => threadsByProject.get(scopedKey(project.environmentId, project.id)) ?? [],
     (left, right) =>
-      left.title.localeCompare(right.title) ||
-      left.environmentId.localeCompare(right.environmentId) ||
-      left.id.localeCompare(right.id),
+      compareForLocale(left.title, right.title, locale) ||
+      compareForLocale(left.environmentId, right.environmentId, locale) ||
+      compareForLocale(left.id, right.id, locale),
   );
 }

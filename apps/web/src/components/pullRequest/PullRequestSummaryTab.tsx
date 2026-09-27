@@ -1,3 +1,4 @@
+import { i18n } from "@t3tools/shared/i18n";
 import type {
   EnvironmentId,
   PullRequestComment,
@@ -129,7 +130,7 @@ function CommentLocation({
 /** "CHANGES_REQUESTED" reads as "Changes requested": one capital, the host's underscores gone. */
 function reviewStateLabel(state: string): string {
   const words = state.toLowerCase().replace(/_/g, " ");
-  return words.charAt(0).toUpperCase() + words.slice(1);
+  return words.charAt(0).toLocaleUpperCase(i18n.locale) + words.slice(1);
 }
 
 /** What every remark in the conversation needs to be rewritten where it sits. */

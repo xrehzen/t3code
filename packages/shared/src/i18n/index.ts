@@ -145,3 +145,32 @@ export const i18n: I18n = createI18n();
 
 export type { MessageKey };
 export { enMessages };
+
+/**
+ * Locale-aware ordering for user-facing lists.
+ *
+ * Turkish collation treats dotted and dotless I as a primary difference and
+ * orders `ı` before `i`; English orders `i` before `I` before `ı`. Two lists of
+ * the same project names therefore came out in a different order depending on
+ * whether the UI ran in the desktop shell or a browser, because the default
+ * collation follows the host.
+ *
+ * The comparison options are deliberately left at their defaults. Adding
+ * `numeric: true` would order "project-2" before "project-10" rather than after
+ * it, and `sensitivity: "base"` would make differently-cased ids compare equal
+ * and hand the ordering to a later tie-break. Both are arguably improvements,
+ * but they change the list order for an English user, and this is a
+ * translation, not a redesign.
+ */
+export function compareForLocale(
+  left: string,
+  right: string,
+  locale: SupportedLocale = DEFAULT_LOCALE,
+): number {
+  return left.localeCompare(right, locale);
+}
+
+export function collatorForLocale(locale: SupportedLocale): (a: string, b: string) => number {
+  const collator = new Intl.Collator(locale, { numeric: true, sensitivity: "base" });
+  return (a, b) => collator.compare(a, b);
+}

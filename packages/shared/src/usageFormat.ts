@@ -9,21 +9,46 @@ import { UsageDay, type UsageResolution, type UsageSummaryInput } from "@t3tools
 
 import type { UsageContractMismatch } from "./usageMerge.ts";
 
-const CURRENCY = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
+/**
+ * Money and plain counts are grouped and punctuated per locale: Turkish writes
+ * 1.234,56 and 19.900, not $1,234.56 and 19,900. Only the grouping and
+ * separators move — the currency stays USD, because the amounts come from
+ * Anthropic and OpenAI in dollars and relabelling them would misstate the bill.
+ *
+ * The formatters are built per call rather than cached at module load, because
+ * the active locale lives in a singleton that can change while the app runs and
+ * a module-level cache would be frozen at first use.
+ */
+const currencyFormatters = new Map<string, Intl.NumberFormat>();
+const integerFormatters = new Map<string, Intl.NumberFormat>();
 
-const INTEGER = new Intl.NumberFormat("en-US");
+function currencyFormatter(locale: string): Intl.NumberFormat {
+  const cached = currencyFormatters.get(locale);
+  if (cached) return cached;
+  const created = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  currencyFormatters.set(locale, created);
+  return created;
+}
+
+function integerFormatter(locale: string): Intl.NumberFormat {
+  const cached = integerFormatters.get(locale);
+  if (cached) return cached;
+  const created = new Intl.NumberFormat(locale);
+  integerFormatters.set(locale, created);
+  return created;
+}
 
 export function formatUsd(value: number): string {
-  return CURRENCY.format(value);
+  return currencyFormatter(i18n.locale).format(value);
 }
 
 export function formatCount(value: number): string {
-  return INTEGER.format(Math.round(value));
+  return integerFormatter(i18n.locale).format(Math.round(value));
 }
 
 /**
@@ -36,7 +61,7 @@ export function formatTokens(value: number): string {
   if (abs >= 1e9) return `${trim(value / 1e9)}B`;
   if (abs >= 1e6) return `${trim(value / 1e6)}M`;
   if (abs >= 1e3) return `${trim(value / 1e3)}K`;
-  return INTEGER.format(Math.round(value));
+  return integerFormatter(i18n.locale).format(Math.round(value));
 }
 
 function trim(value: number): string {

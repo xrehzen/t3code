@@ -1,3 +1,4 @@
+import { i18n } from "@t3tools/shared/i18n";
 import * as Schema from "effect/Schema";
 import { deriveProjectIdentity } from "../../projectIdentity";
 import { ProjectMonogram } from "../ProjectMonogram";
@@ -36,7 +37,7 @@ const isMonogramText = Schema.is(ProjectMonogramText);
 function iconLabel(name: string): string {
   return name
     .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .map((part) => part.charAt(0).toLocaleUpperCase(i18n.locale) + part.slice(1))
     .join(" ");
 }
 

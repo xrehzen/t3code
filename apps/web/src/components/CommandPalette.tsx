@@ -1,5 +1,6 @@
 "use client";
 
+import { compareForLocale, i18n } from "@t3tools/shared/i18n";
 import { threadPullRequestLinkMode } from "@t3tools/client-runtime/thread-pull-request-compatibility";
 import { visibleThreadPullRequests } from "@t3tools/shared/threadPullRequests";
 
@@ -388,7 +389,11 @@ function sortAddProjectProviderSources(
     if (leftReady !== rightReady) {
       return leftReady ? -1 : 1;
     }
-    return remoteProjectSourceLabel(left).localeCompare(remoteProjectSourceLabel(right));
+    return compareForLocale(
+      remoteProjectSourceLabel(left),
+      remoteProjectSourceLabel(right),
+      i18n.locale,
+    );
   });
 }
 
@@ -985,7 +990,7 @@ function OpenCommandPaletteDialog(props: {
       if (left.isPrimary !== right.isPrimary) {
         return left.isPrimary ? -1 : 1;
       }
-      return left.label.localeCompare(right.label);
+      return compareForLocale(left.label, right.label, i18n.locale);
     });
 
     return options;

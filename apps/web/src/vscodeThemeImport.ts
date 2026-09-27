@@ -1,3 +1,4 @@
+import { i18n } from "@t3tools/shared/i18n";
 import {
   createVividThemeColors,
   getThemeModes,
@@ -169,7 +170,7 @@ export function humanizeThemeName(raw: string): string {
   return trimmed
     .split(/[-_.]+/)
     .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toLocaleUpperCase(i18n.locale) + word.slice(1))
     .join(" ");
 }
 
