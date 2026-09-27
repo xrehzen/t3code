@@ -1,3 +1,4 @@
+import { foldForSearch } from "@t3tools/shared/searchRanking";
 import { threadPullRequestSearchTerms } from "@t3tools/shared/threadPullRequests";
 import * as React from "react";
 import { defaultAnimateLayoutChanges, type AnimateLayoutChanges } from "@dnd-kit/sortable";
@@ -894,13 +895,16 @@ export function searchSidebarThreads<
   query: string,
   contentMatchKeys: ReadonlySet<string> = EMPTY_CONTENT_MATCH_KEYS,
 ): T[] {
-  const normalizedQuery = query.trim().toLowerCase();
+  // Shared fold rather than a local toLowerCase: a Turkish thread title has to
+  // be reachable by typing it without diacritics, the same way the command
+  // palette already is.
+  const normalizedQuery = foldForSearch(query);
   if (normalizedQuery.length === 0) return [];
   const titleMatches: T[] = [];
   const contentMatches: T[] = [];
   for (const thread of threads) {
     const matchesTitle = [thread.title, ...threadPullRequestSearchTerms(thread)].some((term) =>
-      term.toLowerCase().includes(normalizedQuery),
+      foldForSearch(term).includes(normalizedQuery),
     );
     if (matchesTitle) {
       titleMatches.push(thread);

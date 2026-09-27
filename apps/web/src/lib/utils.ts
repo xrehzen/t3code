@@ -1,4 +1,5 @@
 import { MessageId, ProjectId, ThreadId } from "@t3tools/contracts";
+import { foldForSearch } from "@t3tools/shared/searchRanking";
 import { type CxOptions, cx } from "class-variance-authority";
 import * as Encoding from "effect/Encoding";
 import { extendTailwindMerge } from "tailwind-merge";
@@ -20,8 +21,15 @@ export function isWindowsPlatform(platform: string): boolean {
   return /^win(dows)?/i.test(platform);
 }
 
+/**
+ * Search normalization for the settings index and the command palette. Both
+ * need the same answer for the same keystrokes, so this delegates to the shared
+ * fold rather than growing a second implementation.
+ *
+ * See `foldForSearch` for why the Turkish dotted/dotless I fold is load-bearing.
+ */
 export function normalizeSearchText(value: string): string {
-  return value.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().replace(/\s+/g, " ").trim();
+  return foldForSearch(value);
 }
 
 export function getLocalFileManagerName(platform: string): string {

@@ -1,3 +1,4 @@
+import { foldForSearch } from "@t3tools/shared/searchRanking";
 import { type FilesystemBrowseEntry, WS_METHODS } from "@t3tools/contracts";
 import { Atom } from "effect/unstable/reactivity";
 
@@ -33,11 +34,13 @@ export function filterFilesystemBrowseEntries(
   entries: ReadonlyArray<FilesystemBrowseEntry>,
   query: string,
 ) {
-  const lowerQuery = query.toLowerCase();
+  // Shared fold: this is a prefix match, so a single unmapped Turkish dotted I
+  // empties the whole list rather than just reordering it.
+  const foldedQuery = foldForSearch(query);
   const showHidden = query.startsWith(".");
   const visibleEntries = entries.filter(
     (entry) =>
-      entry.name.toLowerCase().startsWith(lowerQuery) &&
+      foldForSearch(entry.name).startsWith(foldedQuery) &&
       (showHidden || !entry.name.startsWith(".")),
   );
   const exactEntry =
