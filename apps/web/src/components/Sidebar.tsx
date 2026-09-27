@@ -1,5 +1,6 @@
 import { requestCustomSnooze } from "./CustomSnoozeDialog";
 import { useSupportsMultiplePullRequests } from "~/hooks/useSupportsMultiplePullRequests";
+import { i18n } from "@t3tools/shared/i18n";
 import { resolveThreadCurrentPullRequestLink } from "@t3tools/shared/threadPullRequests";
 import { useAtomValue } from "@effect/atom-react";
 import { replaceComposerContextReferences } from "@t3tools/shared/composerContextReferences";
@@ -148,7 +149,7 @@ import {
   resolveActiveThreadRouteRef,
   resolveThreadRouteTarget,
 } from "../threadRoutes";
-import { formatRelativeTimeLabel, parseTimestampDate } from "../timestampFormat";
+import { formatRelativeTime, parseTimestampDate } from "../timestampFormat";
 import type { SidebarThreadSummary } from "../types";
 import type { EnvironmentProject } from "@t3tools/client-runtime/state/shell";
 import { cn } from "~/lib/utils";
@@ -259,14 +260,24 @@ const SETTLED_TAIL_PAGE_COUNT = 25;
 const SETTLED_SHELF_EXPANDED_KEY = "t3code:sidebar:settled-expanded";
 const SNOOZED_SHELF_EXPANDED_KEY = "t3code:sidebar:snoozed-expanded";
 
-function compactSidebarTimeLabel(label: string): string {
-  if (label === "just now") return "now";
-  return label.endsWith(" ago") ? label.slice(0, -4) : label;
+/**
+ * The sidebar shelf only has room for the magnitude ("3d"), not the whole
+ * relative label. This used to slice the English string after the fact, which
+ * silently stopped matching the moment the label was translated — `endsWith("
+ * ago")` is false for every other language, so the full label overflowed the
+ * column. Deriving the compact form from the parsed parts instead means the
+ * shelf is correct in every locale.
+ */
+function compactSidebarTimeLabel(isoDate: string): string {
+  const relative = formatRelativeTime(isoDate);
+  if (!relative) return "";
+  if (!relative.suffix) return relative.value === i18n.t("time.justNow") ? "now" : relative.value;
+  return relative.value;
 }
 
 function threadTimeLabel(thread: SidebarThreadSummary): string {
   const timestamp = thread.latestUserMessageAt ?? thread.updatedAt;
-  return compactSidebarTimeLabel(formatRelativeTimeLabel(timestamp));
+  return compactSidebarTimeLabel(timestamp);
 }
 
 // Settled rows read "how long ago did this wrap up", matching their sort
@@ -274,7 +285,7 @@ function threadTimeLabel(thread: SidebarThreadSummary): string {
 // disagree.
 function settledTimeLabel(thread: SidebarThreadSummary): string {
   const timestamp = resolveSettledThreadTimestamp(thread);
-  return timestamp === null ? "" : compactSidebarTimeLabel(formatRelativeTimeLabel(timestamp));
+  return timestamp === null ? "" : compactSidebarTimeLabel(timestamp);
 }
 
 // Floats at the row's right edge, vertically centered, while the jump

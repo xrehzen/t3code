@@ -4,6 +4,7 @@
  *
  * @module usageFormat
  */
+import { i18n } from "./i18n/index.ts";
 import { UsageDay, type UsageResolution, type UsageSummaryInput } from "@t3tools/contracts";
 
 import type { UsageContractMismatch } from "./usageMerge.ts";

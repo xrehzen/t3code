@@ -1,4 +1,5 @@
 // @effect-diagnostics globalDate:off -- UI snooze presets use local calendar boundaries and Intl labels.
+import { i18n } from "@t3tools/shared/i18n";
 import type { OrchestrationThreadShell } from "@t3tools/contracts";
 
 /**
@@ -215,13 +216,13 @@ export function resolveSnoozePresets(now: Date): ReadonlyArray<SnoozePreset> {
   const presets: SnoozePreset[] = [
     {
       id: "hour",
-      label: "In 1 hour",
+      label: i18n.t("snooze.preset.inOneHour"),
       whenLabel: snoozeTimeOfDayLabel(inAnHour),
       snoozedUntil: inAnHour.toISOString(),
     },
     {
       id: "three-hours",
-      label: "In 3 hours",
+      label: i18n.t("snooze.preset.inThreeHours"),
       whenLabel: snoozeTimeOfDayLabel(inThreeHours),
       snoozedUntil: inThreeHours.toISOString(),
     },
@@ -231,7 +232,7 @@ export function resolveSnoozePresets(now: Date): ReadonlyArray<SnoozePreset> {
   if (evening.getTime() - now.getTime() > HOUR_MS) {
     presets.push({
       id: "evening",
-      label: "This evening",
+      label: i18n.t("snooze.preset.thisEvening"),
       whenLabel: snoozeTimeOfDayLabel(evening),
       snoozedUntil: evening.toISOString(),
     });
@@ -240,7 +241,7 @@ export function resolveSnoozePresets(now: Date): ReadonlyArray<SnoozePreset> {
   const tomorrow = snoozeAtHour(addSnoozeDays(now, 1), MORNING_HOUR);
   presets.push({
     id: "tomorrow",
-    label: "Tomorrow",
+    label: i18n.t("snooze.preset.tomorrow"),
     whenLabel: snoozeTimeOfDayLabel(tomorrow),
     snoozedUntil: tomorrow.toISOString(),
   });
@@ -250,7 +251,7 @@ export function resolveSnoozePresets(now: Date): ReadonlyArray<SnoozePreset> {
   if (nextWeek.getTime() !== tomorrow.getTime()) {
     presets.push({
       id: "next-week",
-      label: "Next week",
+      label: i18n.t("snooze.preset.nextWeek"),
       whenLabel: `${nextWeek.toLocaleDateString(undefined, { weekday: "short" })} ${snoozeTimeOfDayLabel(nextWeek)}`,
       snoozedUntil: nextWeek.toISOString(),
     });
