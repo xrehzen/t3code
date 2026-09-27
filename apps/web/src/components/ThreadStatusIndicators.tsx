@@ -1,4 +1,18 @@
-import { i18n } from "@t3tools/shared/i18n";
+import { i18n, type MessageKey, type Translate } from "@t3tools/shared/i18n";
+
+/**
+ * Sentence form of a pull request state. `PULL_REQUEST_STATE_PRESENTATION.label`
+ * is a tag, not a phrase, so it cannot be lowercased into a sentence the way
+ * English does — and Turkish has no case distinction to preserve anyway. The key
+ * lives here rather than on the presentation record because that record is
+ * asserted field by field elsewhere and describes the glyph, not the wording.
+ */
+function pullRequestStateSummary(
+  state: keyof typeof PULL_REQUEST_STATE_PRESENTATION,
+  t: Translate,
+): string {
+  return t(`sidebar.pullRequestState.${state}` as MessageKey);
+}
 import { useSupportsMultiplePullRequests } from "~/hooks/useSupportsMultiplePullRequests";
 import { scopedThreadKey, scopeThreadRef } from "@t3tools/client-runtime/environment";
 import { pullRequestDetailToVcsStatus } from "@t3tools/client-runtime/state/pull-requests";
@@ -169,7 +183,7 @@ export function resolveThreadPullRequestBadgePresentation({
       toneClassName: aggregate.toneClassName,
       label: i18n.t("sidebar.statusIndicators.pullRequestStack", {
         count: badge.layers,
-        summary: i18n.t(aggregate.summaryKey),
+        summary: pullRequestStateSummary(badge.state, i18n.t),
       }),
       text: badge.layers,
     };
@@ -187,7 +201,7 @@ export function resolveThreadPullRequestBadgePresentation({
       label: i18n.t("sidebar.statusIndicators.pullRequestMoreLinked", {
         tooltip,
         count: badge.others,
-        state: i18n.t(aggregate.summaryKey),
+        state: pullRequestStateSummary(badge.state, i18n.t),
       }),
       text: `+${badge.others + 1}`,
     };
