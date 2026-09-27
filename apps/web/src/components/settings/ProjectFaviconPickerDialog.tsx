@@ -1,3 +1,4 @@
+import { i18n } from "@t3tools/shared/i18n";
 import { useAtomValue } from "@effect/atom-react";
 import type { EnvironmentId } from "@t3tools/contracts";
 import { isWindowsAbsolutePath } from "@t3tools/shared/path";
@@ -96,7 +97,7 @@ export function ProjectFaviconPickerDialog(props: {
                           type: "error",
                           title: "Could not open image picker",
                           description:
-                            error instanceof Error ? error.message : "An error occurred.",
+                            error instanceof Error ? error.message : i18n.t("error.fallback"),
                         });
                       })
                       .finally(() => setIsPickingExternal(false));

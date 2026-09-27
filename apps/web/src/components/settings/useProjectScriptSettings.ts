@@ -1,3 +1,4 @@
+import { i18n } from "@t3tools/shared/i18n";
 import {
   isAtomCommandInterrupted,
   mapAtomCommandResult,
@@ -39,7 +40,7 @@ function reportScriptFailure(result: AtomCommandResult<unknown, unknown>) {
     toastManager.add({
       type: "error",
       title: "Failed to save project actions",
-      description: error instanceof Error ? error.message : "An error occurred.",
+      description: error instanceof Error ? error.message : i18n.t("error.fallback"),
     });
   }
   return mapAtomCommandResult(result, () => undefined);

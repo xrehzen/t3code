@@ -1,3 +1,4 @@
+import { i18n } from "@t3tools/shared/i18n";
 import {
   parseScopedThreadKey,
   scopeProjectRef,
@@ -184,7 +185,7 @@ export async function navigateAfterThreadDeletion(navigate: () => Promise<void>)
       stackedThreadToast({
         type: "error",
         title: "Thread deleted, but navigation failed",
-        description: error instanceof Error ? error.message : "An error occurred.",
+        description: error instanceof Error ? error.message : i18n.t("error.fallback"),
       }),
     );
   }
@@ -510,7 +511,7 @@ export function useThreadActions() {
       if (cleanupFailure) {
         const removalFailed = removeResult._tag === "Failure";
         const error = squashAtomCommandFailure(cleanupFailure);
-        const message = error instanceof Error ? error.message : "An error occurred.";
+        const message = error instanceof Error ? error.message : i18n.t("error.fallback");
         console.error("Worktree cleanup failed after thread deletion", {
           threadId: threadRef.threadId,
           projectCwd: threadProject.workspaceRoot,

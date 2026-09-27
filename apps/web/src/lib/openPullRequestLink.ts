@@ -1,3 +1,4 @@
+import { i18n } from "@t3tools/shared/i18n";
 import type { EnvironmentId, PullRequestRef, ScopedThreadRef } from "@t3tools/contracts";
 import { useAtomValue } from "@effect/atom-react";
 import { useNavigate } from "@tanstack/react-router";
@@ -347,7 +348,7 @@ export function useOpenPrLink(threadRef?: ScopedThreadRef) {
           stackedThreadToast({
             type: "error",
             title: "Unable to open pull request link",
-            description: error instanceof Error ? error.message : "An error occurred.",
+            description: error instanceof Error ? error.message : i18n.t("error.fallback"),
           }),
         );
       });

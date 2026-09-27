@@ -1,3 +1,4 @@
+import { i18n } from "@t3tools/shared/i18n";
 import { RefreshIcon } from "~/components/ui/refresh-icon";
 import type {
   ContextMenuItem as TreeContextMenuItem,
@@ -205,7 +206,7 @@ export default function FileBrowserPanel({
           toastManager.add({
             type: "error",
             title: "Failed to copy mention",
-            description: error instanceof Error ? error.message : "An error occurred.",
+            description: error instanceof Error ? error.message : i18n.t("error.fallback"),
           });
         }
         return;

@@ -1,3 +1,4 @@
+import { i18n } from "@t3tools/shared/i18n";
 import { useLoadBalancedEnvironment } from "../hooks/useLoadBalancedEnvironment";
 import { visibleThreadPullRequests } from "@t3tools/shared/threadPullRequests";
 import type { UsageLimitSourceSnapshots } from "@t3tools/contracts";
@@ -1450,7 +1451,7 @@ type LocalThreadErrorEntry = {
 };
 
 function chatActionErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : "An error occurred.";
+  return error instanceof Error ? error.message : i18n.t("error.fallback");
 }
 
 const ENVIRONMENT_UNAVAILABLE_SEND_TOAST_TRAIL_SIZE = 3;
@@ -2190,7 +2191,7 @@ export default function ChatView(props: ChatViewProps) {
           stackedThreadToast({
             type: "error",
             title,
-            description: error instanceof Error ? error.message : "An error occurred.",
+            description: error instanceof Error ? error.message : i18n.t("error.fallback"),
           }),
         );
       }
@@ -4467,7 +4468,7 @@ export default function ChatView(props: ChatViewProps) {
           stackedThreadToast({
             type: "error",
             title: "Could not delete action",
-            description: error instanceof Error ? error.message : "An unexpected error occurred.",
+            description: error instanceof Error ? error.message : i18n.t("error.unexpected"),
           }),
         );
       }
@@ -5200,7 +5201,7 @@ export default function ChatView(props: ChatViewProps) {
           stackedThreadToast({
             type: "error",
             title: "Failed to copy path",
-            description: error instanceof Error ? error.message : "An error occurred.",
+            description: error instanceof Error ? error.message : i18n.t("error.fallback"),
           }),
         );
       },
@@ -6006,7 +6007,7 @@ export default function ChatView(props: ChatViewProps) {
           stackedThreadToast({
             type: "error",
             title: target.failureTitle,
-            description: error instanceof Error ? error.message : "An error occurred.",
+            description: error instanceof Error ? error.message : i18n.t("error.fallback"),
           }),
         );
       },
@@ -6102,7 +6103,7 @@ export default function ChatView(props: ChatViewProps) {
           stackedThreadToast({
             type: "error",
             title: "Failed to un-settle thread",
-            description: error instanceof Error ? error.message : "An error occurred.",
+            description: error instanceof Error ? error.message : i18n.t("error.fallback"),
           }),
         );
       }
@@ -6130,7 +6131,7 @@ export default function ChatView(props: ChatViewProps) {
           stackedThreadToast({
             type: "error",
             title: "Failed to wake thread",
-            description: error instanceof Error ? error.message : "An error occurred.",
+            description: error instanceof Error ? error.message : i18n.t("error.fallback"),
           }),
         );
       }
@@ -6746,7 +6747,7 @@ export default function ChatView(props: ChatViewProps) {
             stackedThreadToast({
               type: "error",
               title: "Failed to settle thread",
-              description: error instanceof Error ? error.message : "An error occurred.",
+              description: error instanceof Error ? error.message : i18n.t("error.fallback"),
             }),
           );
         });
@@ -6766,7 +6767,7 @@ export default function ChatView(props: ChatViewProps) {
               stackedThreadToast({
                 type: "error",
                 title: pinned ? "Failed to unpin thread" : "Failed to pin thread",
-                description: error instanceof Error ? error.message : "An error occurred.",
+                description: error instanceof Error ? error.message : i18n.t("error.fallback"),
               }),
             );
           },

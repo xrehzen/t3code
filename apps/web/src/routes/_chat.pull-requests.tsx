@@ -1,3 +1,4 @@
+import { i18n } from "@t3tools/shared/i18n";
 import { RefreshIcon } from "~/components/ui/refresh-icon";
 import { Spinner } from "~/components/ui/spinner";
 import { pullRequestHostOf, resolveEnvironmentMachineKind } from "@t3tools/contracts";
@@ -2038,7 +2039,7 @@ function PullRequestsRouteView() {
         toastManager.add({
           type: "error",
           title: "Failed to copy PR link",
-          description: error instanceof Error ? error.message : "An error occurred.",
+          description: error instanceof Error ? error.message : i18n.t("error.fallback"),
         });
       },
     );

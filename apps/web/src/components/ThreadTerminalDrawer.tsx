@@ -1,3 +1,4 @@
+import { i18n } from "@t3tools/shared/i18n";
 import { useAtomValue } from "@effect/atom-react";
 import {
   isAtomCommandInterrupted,
@@ -808,7 +809,7 @@ export function TerminalViewport({
               stackedThreadToast({
                 type: "error",
                 title: "Unable to open link",
-                description: error instanceof Error ? error.message : "An error occurred.",
+                description: error instanceof Error ? error.message : i18n.t("error.fallback"),
               }),
             );
           });

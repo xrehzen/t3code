@@ -1,5 +1,6 @@
 "use client";
 
+import { i18n } from "@t3tools/shared/i18n";
 import { FILL_PREVIEW_VIEWPORT, type ScopedThreadRef } from "@t3tools/contracts";
 import { PanelRightIcon, PictureInPicture2, XIcon } from "lucide-react";
 import {
@@ -183,7 +184,7 @@ function BrowserMiniPlayer({
       toastManager.add({
         type: "error",
         title: "Unable to update popped-out preview",
-        description: error instanceof Error ? error.message : "An error occurred.",
+        description: error instanceof Error ? error.message : i18n.t("error.fallback"),
       });
     });
   };

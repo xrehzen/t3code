@@ -1,3 +1,4 @@
+import { i18n } from "@t3tools/shared/i18n";
 import { usePullRequestLinking } from "~/hooks/usePullRequestLinking";
 import { useAtomValue } from "@effect/atom-react";
 import {
@@ -1963,7 +1964,7 @@ const MarkdownFileLink = memo(function MarkdownFileLink({
           stackedThreadToast({
             type: "error",
             title: "Unable to open file",
-            description: error instanceof Error ? error.message : "An error occurred.",
+            description: error instanceof Error ? error.message : i18n.t("error.fallback"),
           }),
         );
       } catch (cause) {
@@ -1975,7 +1976,7 @@ const MarkdownFileLink = memo(function MarkdownFileLink({
           stackedThreadToast({
             type: "error",
             title: "Unable to open file",
-            description: cause instanceof Error ? cause.message : "An error occurred.",
+            description: cause instanceof Error ? cause.message : i18n.t("error.fallback"),
           }),
         );
       }
@@ -2013,7 +2014,7 @@ const MarkdownFileLink = memo(function MarkdownFileLink({
           stackedThreadToast({
             type: "error",
             title: "Unable to open file in browser",
-            description: error instanceof Error ? error.message : "An error occurred.",
+            description: error instanceof Error ? error.message : i18n.t("error.fallback"),
           }),
         );
       } catch (cause) {
@@ -2025,7 +2026,7 @@ const MarkdownFileLink = memo(function MarkdownFileLink({
           stackedThreadToast({
             type: "error",
             title: "Unable to open file in browser",
-            description: cause instanceof Error ? cause.message : "An error occurred.",
+            description: cause instanceof Error ? cause.message : i18n.t("error.fallback"),
           }),
         );
       }
@@ -2051,7 +2052,7 @@ const MarkdownFileLink = memo(function MarkdownFileLink({
           stackedThreadToast({
             type: "error",
             title: "Unable to reveal file",
-            description: error instanceof Error ? error.message : "An error occurred.",
+            description: error instanceof Error ? error.message : i18n.t("error.fallback"),
           }),
         );
       } catch (cause) {
@@ -2063,7 +2064,7 @@ const MarkdownFileLink = memo(function MarkdownFileLink({
           stackedThreadToast({
             type: "error",
             title: "Unable to reveal file",
-            description: cause instanceof Error ? cause.message : "An error occurred.",
+            description: cause instanceof Error ? cause.message : i18n.t("error.fallback"),
           }),
         );
       }
@@ -2100,7 +2101,7 @@ const MarkdownFileLink = memo(function MarkdownFileLink({
             stackedThreadToast({
               type: "error",
               title: `Failed to copy ${title.toLowerCase()}`,
-              description: error instanceof Error ? error.message : "An error occurred.",
+              description: error instanceof Error ? error.message : i18n.t("error.fallback"),
             }),
           );
         },

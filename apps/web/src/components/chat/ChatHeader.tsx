@@ -1,3 +1,4 @@
+import { i18n } from "@t3tools/shared/i18n";
 import {
   type EnvironmentId,
   type EditorId,
@@ -246,7 +247,7 @@ export const ChatHeader = memo(function ChatHeader({
           toastManager.add({
             type: "error",
             title: "Failed to rename thread",
-            description: error instanceof Error ? error.message : "An error occurred.",
+            description: error instanceof Error ? error.message : i18n.t("error.fallback"),
           });
         }
       });

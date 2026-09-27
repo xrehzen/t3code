@@ -1,3 +1,4 @@
+import { i18n } from "@t3tools/shared/i18n";
 import { requestCustomSnooze } from "../components/CustomSnoozeDialog";
 import { scopeProjectRef, scopedThreadKey } from "@t3tools/client-runtime/environment";
 import {
@@ -47,7 +48,7 @@ function failureToast(title: string, error: unknown) {
     stackedThreadToast({
       type: "error",
       title,
-      description: error instanceof Error ? error.message : "An error occurred.",
+      description: error instanceof Error ? error.message : i18n.t("error.fallback"),
     }),
   );
 }

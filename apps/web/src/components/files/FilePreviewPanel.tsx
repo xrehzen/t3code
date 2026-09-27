@@ -1,3 +1,4 @@
+import { i18n } from "@t3tools/shared/i18n";
 import { Spinner } from "~/components/ui/spinner";
 import type {
   ChatFileAttachment,
@@ -1079,7 +1080,7 @@ export default function FilePreviewPanel({
         stackedThreadToast({
           type: "error",
           title: "Unable to open file in browser",
-          description: error instanceof Error ? error.message : "An error occurred.",
+          description: error instanceof Error ? error.message : i18n.t("error.fallback"),
         }),
       );
     })();

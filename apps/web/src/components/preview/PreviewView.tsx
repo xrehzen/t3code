@@ -1,5 +1,6 @@
 "use client";
 
+import { i18n } from "@t3tools/shared/i18n";
 import { scopedThreadKey } from "@t3tools/client-runtime/environment";
 import {
   isAtomCommandInterrupted,
@@ -269,7 +270,7 @@ export function PreviewView({
         toastManager.add({
           type: "error",
           title: "Unable to resize browser viewport",
-          description: error instanceof Error ? error.message : "An error occurred.",
+          description: error instanceof Error ? error.message : i18n.t("error.fallback"),
         });
         throw error;
       }
@@ -332,7 +333,7 @@ export function PreviewView({
       toastManager.add({
         type: "error",
         title: "Unable to update popped-out preview",
-        description: error instanceof Error ? error.message : "An error occurred.",
+        description: error instanceof Error ? error.message : i18n.t("error.fallback"),
       });
     });
   }, [desktopOverlay?.pictureInPicture, runtimeTabId]);
@@ -377,7 +378,8 @@ export function PreviewView({
                     stackedThreadToast({
                       type: "error",
                       title: "Unable to copy recording path",
-                      description: error instanceof Error ? error.message : "An error occurred.",
+                      description:
+                        error instanceof Error ? error.message : i18n.t("error.fallback"),
                       actionProps: revealAction,
                     }),
                   );
@@ -427,7 +429,7 @@ export function PreviewView({
             toastManager.add({
               type: "error",
               title: "Unable to stop recording",
-              description: error instanceof Error ? error.message : "An error occurred.",
+              description: error instanceof Error ? error.message : i18n.t("error.fallback"),
             });
           },
         );
@@ -435,7 +437,7 @@ export function PreviewView({
       }
       if (record) {
         void startBrowserRecording(runtimeTabId, threadRef, tabId).catch((error) => {
-          const description = error instanceof Error ? error.message : "An error occurred.";
+          const description = error instanceof Error ? error.message : i18n.t("error.fallback");
           if (isBrowserRecordingStartCancelledError(error)) return;
           toastManager.add({
             type: "error",
@@ -514,7 +516,7 @@ export function PreviewView({
                 updateScreenshotToast(
                   "error",
                   "Unable to copy screenshot path",
-                  error instanceof Error ? error.message : "An error occurred.",
+                  error instanceof Error ? error.message : i18n.t("error.fallback"),
                 );
               },
             );
@@ -534,7 +536,7 @@ export function PreviewView({
                 updateScreenshotToast(
                   "error",
                   "Unable to copy screenshot",
-                  error instanceof Error ? error.message : "An error occurred.",
+                  error instanceof Error ? error.message : i18n.t("error.fallback"),
                 );
               },
             );
@@ -570,7 +572,7 @@ export function PreviewView({
           toastManager.add({
             type: "error",
             title: "Unable to capture screenshot",
-            description: error instanceof Error ? error.message : "An error occurred.",
+            description: error instanceof Error ? error.message : i18n.t("error.fallback"),
           });
         },
       );
