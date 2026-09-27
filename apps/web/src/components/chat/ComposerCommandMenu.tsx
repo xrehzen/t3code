@@ -21,6 +21,8 @@ import {
 import { memo, useLayoutEffect, useRef } from "react";
 
 import { type ComposerSlashCommand, type ComposerTriggerKind } from "../../composer-logic";
+import type { MessageKey } from "@t3tools/shared/i18n";
+import { useTranslate } from "../../hooks/useI18n";
 import { cn } from "~/lib/utils";
 import { Badge } from "../ui/badge";
 import { Command, CommandGroup, CommandItem, CommandList } from "../ui/command";
@@ -78,6 +80,7 @@ export const ComposerCommandMenu = memo(function ComposerCommandMenu(props: {
   onHighlightedItemChange: (itemId: string | null) => void;
   onSelect: (item: ComposerCommandItem) => void;
 }) {
+  const t = useTranslate();
   const listRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
@@ -124,16 +127,16 @@ export const ComposerCommandMenu = memo(function ComposerCommandMenu(props: {
             <p className="text-secondary-label text-xs">
               {props.isLoading
                 ? props.triggerKind === "skill"
-                  ? "Searching workspace skills..."
+                  ? t("composer.slash.searchingSkills")
                   : props.triggerKind === "pull-request"
-                    ? "Finding pull request..."
-                    : "Searching workspace files..."
+                    ? t("composer.slash.findingPullRequest")
+                    : t("composer.slash.searchingFiles")
                 : (props.emptyStateText ??
                   (props.triggerKind === "skill"
-                    ? "No skills found. Try / to browse provider commands."
+                    ? t("composer.slash.empty.noSkills")
                     : props.triggerKind === "path"
-                      ? "No matching files or folders."
-                      : "No matching command."))}
+                      ? t("composer.slash.empty.noMatchingFiles")
+                      : t("composer.slash.empty.noMatchingCommand")))}
             </p>
           </div>
         )}
@@ -220,22 +223,23 @@ const SKILL_SOURCE_ICON_BY_KIND: Record<ProviderSkillSourceKind, LucideIcon> = {
   other: PackageIcon,
 };
 
-const SKILL_SOURCE_LABEL_BY_KIND: Record<ProviderSkillSourceKind, string> = {
-  app: "App",
-  repo: "Repo",
-  project: "Project",
-  personal: "Personal",
-  system: "System",
-  other: "Provider",
+const SKILL_SOURCE_LABEL_KEY_BY_KIND: Record<ProviderSkillSourceKind, MessageKey> = {
+  app: "composer.skillSource.app",
+  repo: "composer.skillSource.repo",
+  project: "composer.skillSource.project",
+  personal: "composer.skillSource.personal",
+  system: "composer.skillSource.system",
+  other: "composer.skillSource.other",
 };
 
 function SkillSourceBadge(props: { kind: ProviderSkillSourceKind; showSkillSuffix: boolean }) {
+  const t = useTranslate();
   const Icon = SKILL_SOURCE_ICON_BY_KIND[props.kind];
   return (
     <Badge className="ms-auto" variant="secondary">
       <Icon aria-hidden="true" className="text-current" />
-      {SKILL_SOURCE_LABEL_BY_KIND[props.kind]}
-      {props.showSkillSuffix ? " Skill" : null}
+      {t(SKILL_SOURCE_LABEL_KEY_BY_KIND[props.kind])}
+      {props.showSkillSuffix ? t("composer.skillSource.skillSuffix") : null}
     </Badge>
   );
 }

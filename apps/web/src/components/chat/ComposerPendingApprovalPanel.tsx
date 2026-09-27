@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { type PendingApproval } from "../../session-logic";
+import { useTranslate } from "../../hooks/useI18n";
 import { cn } from "~/lib/utils";
 
 interface ComposerPendingApprovalPanelProps {
@@ -13,27 +14,28 @@ export const ComposerPendingApprovalPanel = memo(function ComposerPendingApprova
   pendingCount,
   className,
 }: ComposerPendingApprovalPanelProps) {
+  const t = useTranslate();
   const Detail = approval.requestKind === "mcp-elicitation" ? "span" : "code";
   const fallbackLabel =
     approval.requestKind === "mcp-elicitation"
-      ? "App access approval"
+      ? t("composer.approval.appAccessApproval")
       : approval.requestKind === "command"
-        ? "Command approval"
+        ? t("composer.approval.commandApproval")
         : approval.requestKind === "file-read"
-          ? "File read approval"
+          ? t("composer.approval.fileReadApproval")
           : approval.requestKind === "permission"
-            ? "App permission approval"
-            : "File change approval";
+            ? t("composer.approval.permissionApproval")
+            : t("composer.approval.fileChangeApproval");
   const detailAriaLabel =
     approval.requestKind === "mcp-elicitation"
-      ? "App access request"
+      ? t("composer.approval.appAccessRequest")
       : approval.requestKind === "command"
-        ? "Command"
+        ? t("composer.approval.commandDetail")
         : approval.requestKind === "file-read"
-          ? "File to read"
+          ? t("composer.approval.fileToRead")
           : approval.requestKind === "permission"
-            ? "Permission request"
-            : "File change";
+            ? t("composer.approval.permissionRequest")
+            : t("composer.approval.fileChange");
 
   return (
     <span

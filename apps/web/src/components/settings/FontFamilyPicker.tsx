@@ -2,6 +2,7 @@ import { LegendList, type LegendListRef } from "@legendapp/list/react";
 import { CheckIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { isMonospaceFamily, queryInstalledFontFamilies } from "../../appearanceFonts";
+import { useTranslate } from "../../hooks/useI18n";
 import {
   Combobox,
   ComboboxEmpty,
@@ -120,6 +121,7 @@ export function FontFamilyPicker({
   initialOpen?: boolean;
   onSelect: (family: string) => void;
 }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   // Open after mount rather than mounting open: a popup that first renders in
@@ -173,7 +175,11 @@ export function FontFamilyPicker({
             {family}
           </span>
           <span className="flex shrink-0 items-center gap-1.5">
-            {isDefault ? <span className="text-3xs text-muted-foreground/60">default</span> : null}
+            {isDefault ? (
+              <span className="text-3xs text-muted-foreground/60">
+                {t("settings.fonts.defaultBadge")}
+              </span>
+            ) : null}
             {item === selectedValue ? (
               <CheckIcon className="size-3.5 text-muted-foreground" />
             ) : null}
@@ -207,12 +213,12 @@ export function FontFamilyPicker({
       </ComboboxTrigger>
       <ComboboxPopup align="end" className="flex w-72 flex-col">
         <ComboboxSearchInput
-          placeholder="Search fonts…"
+          placeholder={t("settings.fonts.searchPlaceholder")}
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <ComboboxEmpty>No fonts found.</ComboboxEmpty>
+          <ComboboxEmpty>{t("settings.fonts.empty")}</ComboboxEmpty>
           <div className="relative min-h-0 max-h-72 w-full flex-1 overflow-hidden">
             <ComboboxListVirtualized>
               <LegendList<string>

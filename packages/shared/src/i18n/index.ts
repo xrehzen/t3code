@@ -55,6 +55,18 @@ export function resolveLocale(systemLocale: string | null | undefined): Supporte
 }
 
 /** `i18n.setLocale("tr")` narrows the locale union, so an unknown tag is a type error. */
+/**
+ * Resolves the stored language preference to a catalog. `system` defers to the
+ * host locale, which is the deciding vote for someone who left the preference
+ * alone; the stored value is `system` until a setting says otherwise.
+ */
+export function resolveInterfaceLanguage(
+  preference: "system" | SupportedLocale,
+  systemLocale: string | null | undefined,
+): SupportedLocale {
+  return preference === "system" ? resolveLocale(systemLocale) : preference;
+}
+
 export function isSupportedLocale(value: string): value is SupportedLocale {
   return SUPPORTED_LOCALES.includes(value as SupportedLocale);
 }

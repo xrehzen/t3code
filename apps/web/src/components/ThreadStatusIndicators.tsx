@@ -1,3 +1,4 @@
+import { i18n } from "@t3tools/shared/i18n";
 import { useSupportsMultiplePullRequests } from "~/hooks/useSupportsMultiplePullRequests";
 import { scopedThreadKey, scopeThreadRef } from "@t3tools/client-runtime/environment";
 import { pullRequestDetailToVcsStatus } from "@t3tools/client-runtime/state/pull-requests";
@@ -49,7 +50,7 @@ export interface PrStatusIndicator {
 }
 
 export interface TerminalStatusIndicator {
-  label: "Terminal process running";
+  label: string;
   colorClass: string;
   pulse: boolean;
 }
@@ -166,20 +167,28 @@ export function resolveThreadPullRequestBadgePresentation({
     return {
       Icon: PullRequestGlyph.stack,
       toneClassName: aggregate.toneClassName,
-      label: `Stack of ${badge.layers} pull requests, ${aggregate.label.toLowerCase()}`,
+      label: i18n.t("sidebar.statusIndicators.pullRequestStack", {
+        count: badge.layers,
+        summary: i18n.t(aggregate.summaryKey),
+      }),
       text: badge.layers,
     };
   }
   if (number === undefined || url === undefined) return null;
 
-  const tooltip = status?.tooltip ?? `PR #${number}, status pending`;
+  const tooltip =
+    status?.tooltip ?? i18n.t("sidebar.statusIndicators.pullRequestPending", { number });
   if (badge?.kind === "pull-request" && badge.others > 0) {
     // Unrelated links fold into one state, so a count of merged PRs reads as merged.
     const aggregate = PULL_REQUEST_STATE_PRESENTATION[badge.state];
     return {
       Icon: aggregate.Icon,
       toneClassName: aggregate.toneClassName,
-      label: `${tooltip}, and ${badge.others} more linked; overall ${aggregate.label.toLowerCase()}`,
+      label: i18n.t("sidebar.statusIndicators.pullRequestMoreLinked", {
+        tooltip,
+        count: badge.others,
+        state: i18n.t(aggregate.summaryKey),
+      }),
       text: `+${badge.others + 1}`,
     };
   }
@@ -329,7 +338,10 @@ export function ThreadPullRequestsMiniList({
             </span>
             {line.stack ? (
               <span className="ml-auto shrink-0 pl-1 text-3xs">
-                {line.stack.kind === "native" ? "stack" : "chain"} · {line.stack.size}
+                {line.stack.kind === "native"
+                  ? i18n.t("sidebar.prStack.label")
+                  : i18n.t("sidebar.prChain.label")}{" "}
+                · {line.stack.size}
               </span>
             ) : null}
           </li>
@@ -388,7 +400,7 @@ export function terminalStatusFromRunningIds(
     return null;
   }
   return {
-    label: "Terminal process running",
+    label: i18n.t("sidebar.statusIndicators.terminalRunning"),
     colorClass: "text-teal-600 dark:text-teal-300/90",
     pulse: true,
   };
@@ -417,8 +429,8 @@ export function ThreadWorktreeIndicator({
 
   const displayPath = formatWorktreePathForDisplay(worktreePath);
   const tooltip = thread.branch
-    ? `Worktree: ${displayPath} (${thread.branch})`
-    : `Worktree: ${displayPath}`;
+    ? i18n.t("sidebar.statusIndicators.worktree", { path: displayPath, state: thread.branch })
+    : i18n.t("sidebar.statusIndicators.worktreeNoState", { path: displayPath });
 
   return (
     <Tooltip>
@@ -547,7 +559,9 @@ export function ThreadRowLeadingStatus({ thread }: { thread: SidebarThreadSummar
       {pendingLink ? (
         <PullRequestGlyph.pullRequest
           className="size-3 text-muted-foreground"
-          aria-label={`PR #${pendingLink.number}, status pending`}
+          aria-label={i18n.t("sidebar.statusIndicators.pullRequestPending", {
+            number: pendingLink.number,
+          })}
         />
       ) : null}
       {threadStatus ? <ThreadStatusLabel status={threadStatus} /> : null}
@@ -571,7 +585,9 @@ export function ThreadRowTrailingStatus({ thread }: { thread: SidebarThreadSumma
   // glyph is what tells the environments apart.
   const isRemoteThread = thread.environmentId !== primaryEnvironmentId;
   const remoteEnvLabel = environment?.label ?? null;
-  const threadEnvironmentLabel = isRemoteThread ? (remoteEnvLabel ?? "Remote") : null;
+  const threadEnvironmentLabel = isRemoteThread
+    ? (remoteEnvLabel ?? i18n.t("sidebar.environment.remote"))
+    : null;
   const remoteMachine = resolveEnvironmentMachineKind(environment?.serverConfig ?? null);
   const terminalStatus = terminalStatusFromRunningIds(runningTerminalIds);
 
@@ -605,7 +621,7 @@ export function ThreadRowTrailingStatus({ thread }: { thread: SidebarThreadSumma
           <TooltipTrigger
             render={
               <span
-                aria-label={threadEnvironmentLabel ?? "Remote"}
+                aria-label={threadEnvironmentLabel ?? i18n.t("sidebar.environment.remote")}
                 className="inline-flex items-center justify-center"
               />
             }

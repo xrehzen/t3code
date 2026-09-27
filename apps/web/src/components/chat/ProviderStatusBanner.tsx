@@ -1,9 +1,11 @@
 import { type ProviderInstanceId, type ServerProvider } from "@t3tools/contracts";
 import { memo } from "react";
 import { InfoIcon, XIcon } from "lucide-react";
+import { i18n } from "@t3tools/shared/i18n";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "../ui/alert";
 import { Button, InlineButton } from "../ui/button";
 import { formatProviderDriverKindLabel } from "../../providerModels";
+import { useTranslate } from "../../hooks/useI18n";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
 
 /** Unsupported and broken versions fail mid-turn, so they warn even when ready. */
@@ -55,24 +57,27 @@ export function hasProviderSetup(status: ServerProvider): boolean {
 
 /** Keep the environment's error intact in both the banner and model picker. */
 export function getProviderStatusMessage(status: ServerProvider): string {
+  const t = i18n.t;
   if (status.message) return status.message;
   const providerName = status.displayName?.trim() || formatProviderDriverKindLabel(status.driver);
   if (!status.installed && hasProviderSetup(status)) {
-    return `Open provider setup to install ${formatProviderDriverKindLabel(status.driver)} on this environment.`;
+    return t("provider.status.notInstalled", {
+      driver: formatProviderDriverKindLabel(status.driver),
+    });
   }
   if (status.auth.status === "unauthenticated") {
     if (hasProviderSetup(status)) {
       return status.driver === "antigravity"
-        ? "Open provider setup to sign in with Google."
-        : "Open provider setup to sign in.";
+        ? t("provider.status.signInWithGoogle")
+        : t("provider.status.openSetupToSignIn");
     }
-    return "Sign in via the CLI to authenticate again.";
+    return t("provider.status.signInViaCli");
   }
   return status.status === "ready"
-    ? "No models are available for this provider."
+    ? t("provider.status.noModels")
     : status.status === "error"
-      ? `${providerName} provider is unavailable.`
-      : `${providerName} provider has limited availability.`;
+      ? t("provider.status.unavailable", { provider: providerName })
+      : t("provider.status.limitedAvailability", { provider: providerName });
 }
 
 export const ProviderStatusBanner = memo(function ProviderStatusBanner({
@@ -84,6 +89,7 @@ export const ProviderStatusBanner = memo(function ProviderStatusBanner({
   onOpenProviderSetup?: (instanceId: ProviderInstanceId) => void;
   status: ServerProvider | null;
 }) {
+  const t = useTranslate();
   if (!status || getProviderStatusBannerKey(status) === null) {
     return null;
   }
@@ -92,10 +98,15 @@ export const ProviderStatusBanner = memo(function ProviderStatusBanner({
   const isUnauthenticated = status.status === "error" && status.auth.status === "unauthenticated";
   const incompatible = status.status === "ready" ? getIncompatibleVersion(status) : null;
   const title = isUnauthenticated
-    ? `${providerName} is unauthenticated`
+    ? t("provider.status.unauthenticatedTitle", { provider: providerName })
     : incompatible
-      ? `${providerName} ${status.version ?? ""} is ${incompatible.status === "broken" ? "known to be broken" : "unsupported"}`
-      : `${providerName} provider status`;
+      ? t(
+          incompatible.status === "broken"
+            ? "provider.status.brokenTitle"
+            : "provider.status.unsupportedTitle",
+          { provider: providerName, version: status.version ?? "" },
+        )
+      : t("provider.status.title", { provider: providerName });
   const message = incompatible?.message ?? getProviderStatusMessage(status);
   const isWarning = status.status === "warning" || incompatible !== null;
 
@@ -118,13 +129,16 @@ export const ProviderStatusBanner = memo(function ProviderStatusBanner({
           </Tooltip>
           {onOpenProviderSetup && hasProviderSetup(status) ? (
             <InlineButton onClick={() => onOpenProviderSetup(status.instanceId)}>
-              Open provider setup
+              {t("composer.modelPicker.openSetup")}
             </InlineButton>
           ) : null}
         </AlertDescription>
         <AlertAction>
           <Button
-            aria-label={`Dismiss ${providerName} provider ${status.status}`}
+            aria-label={t("provider.status.dismissAria", {
+              provider: providerName,
+              status: status.status,
+            })}
             onClick={onDismiss}
             size="icon-xs"
             variant="ghost-muted"

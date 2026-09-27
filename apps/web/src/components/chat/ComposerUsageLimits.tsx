@@ -2,6 +2,7 @@ import type { EnvironmentId, UsageLimitsReport } from "@t3tools/contracts";
 import { limitsNotice } from "@t3tools/shared/usageLimits";
 import { GaugeIcon } from "lucide-react";
 
+import { i18n } from "@t3tools/shared/i18n";
 import { getDriverOption } from "../settings/providerDriverMeta";
 import { RedactedSensitiveText } from "../settings/RedactedSensitiveText";
 import { LimitWindows, ResetCredits } from "../usage/UsageLimits";
@@ -22,6 +23,7 @@ function accountLabel(account: UsageLimitsReport["accounts"][number]): string {
 }
 
 function AccountSummary({ account }: { readonly account: UsageLimitsReport["accounts"][number] }) {
+  const t = i18n.t;
   const label = accountLabel(account);
   return (
     <>
@@ -29,9 +31,9 @@ function AccountSummary({ account }: { readonly account: UsageLimitsReport["acco
         <RedactedSensitiveText
           key={label}
           value={label}
-          ariaLabel="Toggle account label visibility"
-          revealTooltip="Click to reveal account"
-          hideTooltip="Click to hide account"
+          ariaLabel={t("composer.usageLimits.toggleLabelAria")}
+          revealTooltip={t("composer.usageLimits.revealTooltip")}
+          hideTooltip={t("composer.usageLimits.hideTooltip")}
           className="max-w-full truncate align-bottom font-sans text-xs leading-normal"
         />
       ) : (
@@ -49,21 +51,22 @@ export function usageLimitsBannerItem(
   environmentId: EnvironmentId,
   onDismiss: () => void,
 ): ComposerBannerStackItem {
+  const t = i18n.t;
   const [first] = report.accounts;
   const single = report.accounts.length === 1 && first ? first : null;
   const summary = single ? (
     <AccountSummary account={single} />
   ) : (
-    `${report.accounts.length} accounts`
+    t("composer.usageLimits.accountsCount", { count: report.accounts.length })
   );
   return {
     id,
     variant: "info",
     priority: "notice",
     icon: <GaugeIcon />,
-    title: "Usage limits",
+    title: t("composer.usageLimits.title"),
     description: summary,
-    dismissLabel: "Dismiss usage limits",
+    dismissLabel: t("composer.usageLimits.dismiss"),
     onDismiss,
     children: <UsageLimitsBannerBody report={report} environmentId={environmentId} />,
   };

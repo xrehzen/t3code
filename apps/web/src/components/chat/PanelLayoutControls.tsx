@@ -1,6 +1,7 @@
 import { Maximize2Icon, Minimize2Icon, PanelBottomIcon, PanelRightIcon } from "lucide-react";
 import { memo } from "react";
 
+import { useTranslate } from "../../hooks/useI18n";
 import { Toggle } from "../ui/toggle";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
 
@@ -27,11 +28,12 @@ export const PanelLayoutControls = memo(function PanelLayoutControls({
   rightPanelAvailable,
   rightPanelOpen,
   rightPanelShortcutLabel,
-  rightPanelUnavailableLabel = "Right panel is unavailable",
+  rightPanelUnavailableLabel,
   liveAgentCount,
   onToggleTerminal,
   onToggleRightPanel,
 }: PanelLayoutControlsProps) {
+  const t = useTranslate();
   return (
     <div
       className="flex h-full shrink-0 items-center gap-1 [-webkit-app-region:no-drag]"
@@ -44,7 +46,7 @@ export const PanelLayoutControls = memo(function PanelLayoutControls({
               className="shrink-0 [-webkit-app-region:no-drag]"
               pressed={terminalOpen}
               onPressedChange={onToggleTerminal}
-              aria-label="Toggle terminal drawer"
+              aria-label={t("panel.terminal.toggleAria")}
               variant="ghost"
               size="sm"
               disabled={!terminalAvailable}
@@ -54,8 +56,10 @@ export const PanelLayoutControls = memo(function PanelLayoutControls({
           </TooltipTrigger>
           <TooltipPopup side="bottom">
             {terminalAvailable
-              ? `Toggle terminal drawer${terminalShortcutLabel ? ` (${terminalShortcutLabel})` : ""}`
-              : "Terminal drawer is unavailable"}
+              ? `${t("panel.terminal.toggle")}${
+                  terminalShortcutLabel ? ` (${terminalShortcutLabel})` : ""
+                }`
+              : t("panel.terminal.unavailable")}
           </TooltipPopup>
         </Tooltip>
       ) : null}
@@ -67,8 +71,15 @@ export const PanelLayoutControls = memo(function PanelLayoutControls({
             onPressedChange={onToggleRightPanel}
             aria-label={
               liveAgentCount > 0
-                ? `Toggle right panel, ${liveAgentCount} ${liveAgentCount === 1 ? "agent" : "agents"} working`
-                : "Toggle right panel"
+                ? t("panel.rightPanel.toggleWithAgents", {
+                    count: liveAgentCount,
+                    agents: t(
+                      liveAgentCount === 1
+                        ? "panel.rightPanel.agentOne"
+                        : "panel.rightPanel.agentMany",
+                    ),
+                  })
+                : t("panel.rightPanel.toggleAria")
             }
             variant="ghost"
             size="sm"
@@ -87,12 +98,19 @@ export const PanelLayoutControls = memo(function PanelLayoutControls({
         </TooltipTrigger>
         <TooltipPopup side="bottom">
           {rightPanelAvailable
-            ? `Toggle right panel${rightPanelShortcutLabel ? ` (${rightPanelShortcutLabel})` : ""}${
+            ? `${t("panel.rightPanel.toggle")}${
+                rightPanelShortcutLabel ? ` (${rightPanelShortcutLabel})` : ""
+              }${
                 liveAgentCount > 0
-                  ? ` · ${liveAgentCount} ${liveAgentCount === 1 ? "agent" : "agents"} working`
+                  ? ` · ${t(
+                      liveAgentCount === 1
+                        ? "panel.rightPanel.oneAgentWorking"
+                        : "panel.rightPanel.manyAgentsWorking",
+                      { count: liveAgentCount },
+                    )}`
                   : ""
               }`
-            : rightPanelUnavailableLabel}
+            : (rightPanelUnavailableLabel ?? t("panel.rightPanel.unavailable"))}
         </TooltipPopup>
       </Tooltip>
     </div>
@@ -106,7 +124,8 @@ export const RightPanelMaximizeControl = memo(function RightPanelMaximizeControl
   maximized: boolean;
   onToggle: () => void;
 }) {
-  const label = maximized ? "Restore panel size" : "Maximize panel";
+  const t = useTranslate();
+  const label = maximized ? t("panel.rightPanel.restoreSize") : t("panel.rightPanel.maximize");
   return (
     <Tooltip>
       <TooltipTrigger

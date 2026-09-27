@@ -18,6 +18,7 @@ import {
   PRIMARY_SETTINGS_UNAVAILABLE_MESSAGE,
   usePrimarySettingsAvailable,
 } from "../../hooks/useSettings";
+import { useTranslate } from "../../hooks/useI18n";
 import { cn } from "../../lib/utils";
 import { WorkspacePageContainer, type WorkspacePageWidth } from "../WorkspacePageContainer";
 import { Button } from "../ui/button";
@@ -142,12 +143,17 @@ export const SETTINGS_PICKER_TRIGGER_CLASSNAME = "min-w-0 max-w-none shrink-0";
 
 /** Info affordance explaining how a setting interacts with the shared background policy. */
 export function PolicyTooltip({ children }: { readonly children: string }) {
+  const t = useTranslate();
   return (
     <Tooltip>
       <TooltipTrigger
         delay={200}
         render={
-          <Button size="icon-micro" variant="ghost-muted" aria-label="Background policy details">
+          <Button
+            size="icon-micro"
+            variant="ghost-muted"
+            aria-label={t("settings.layout.policyDetailsAria")}
+          >
             <InfoIcon className="size-3.5" />
           </Button>
         }
@@ -278,6 +284,7 @@ export function SettingsRow({
   mixed?: boolean;
   children?: ReactNode;
 }) {
+  const t = useTranslate();
   const targetRef = useSettingsSearchTarget<HTMLDivElement>(rowProps.id);
   const primarySettingsAvailable = usePrimarySettingsAvailable();
   const context = useOptionalSettingsScope();
@@ -340,8 +347,8 @@ export function SettingsRow({
   const renderedReset = unavailable ? null : isProjectScope && scopedKeys.length > 0 ? (
     source === "project" || source === "mixed" ? (
       <SettingResetButton
-        label={typeof title === "string" ? title : "override"}
-        tooltip="Reset to inherited value"
+        label={typeof title === "string" ? title : t("settings.reset.override")}
+        tooltip={t("settings.reset.overrideTooltip")}
         onClick={() => (onResetOverride ? onResetOverride() : clearOverrides(scopedKeys))}
       />
     ) : null
@@ -396,16 +403,19 @@ export function SettingsRow({
       }),
     );
   const inheritance: { state: SettingInheritanceState; summary: string } = mixed
-    ? { state: "mixed", summary: "Mixed across selected environments" }
+    ? { state: "mixed", summary: t("settings.inheritance.mixed") }
     : source === "project"
-      ? { state: "overridden", summary: "Overridden for this project" }
+      ? { state: "overridden", summary: t("settings.inheritance.overridden") }
       : source === "t3.json"
-        ? { state: "inherited", summary: "Inherited from the repository's t3.json" }
+        ? { state: "inherited", summary: t("settings.inheritance.fromRepository") }
         : source === "environment" && scopedKeys.length > 0
-          ? { state: "inherited", summary: `Inherited from ${inheritedFrom}` }
+          ? {
+              state: "inherited",
+              summary: t("settings.inheritance.fromEnvironment", { source: inheritedFrom }),
+            }
           : customized
-            ? { state: "environment", summary: "Set on the environment" }
-            : { state: "default", summary: "Built-in default" };
+            ? { state: "environment", summary: t("settings.inheritance.setOnEnvironment") }
+            : { state: "default", summary: t("settings.inheritance.builtInDefault") };
   const renderedInheritance =
     context && serverScoped && settingKeys.length > 0 ? (
       <SettingInheritance
@@ -473,15 +483,16 @@ export function SettingsRow({
 
 export function SettingResetButton({
   label,
-  tooltip = "Reset to default",
   disabled = false,
   onClick,
+  tooltip,
 }: {
   label: string;
   tooltip?: string;
   disabled?: boolean;
   onClick: () => void;
 }) {
+  const t = useTranslate();
   return (
     <Tooltip>
       <TooltipTrigger
@@ -489,7 +500,7 @@ export function SettingResetButton({
           <Button
             size="icon-micro"
             variant="ghost-muted"
-            aria-label={`Reset ${label} to default`}
+            aria-label={t("settings.reset.ariaLabel", { label })}
             disabled={disabled}
             onClick={(event) => {
               event.stopPropagation();
@@ -500,7 +511,7 @@ export function SettingResetButton({
           </Button>
         }
       />
-      <TooltipPopup side="top">{tooltip}</TooltipPopup>
+      <TooltipPopup side="top">{tooltip ?? t("settings.reset.tooltip")}</TooltipPopup>
     </Tooltip>
   );
 }

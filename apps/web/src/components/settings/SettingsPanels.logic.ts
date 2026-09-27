@@ -18,6 +18,7 @@ import {
 } from "@t3tools/shared/backgroundActivitySettings";
 import * as Duration from "effect/Duration";
 import * as Equal from "effect/Equal";
+import { i18n, type Translate } from "@t3tools/shared/i18n";
 
 export function isProjectGroupingEnabled(mode: SidebarProjectGroupingMode): boolean {
   return mode !== "separate";
@@ -88,23 +89,26 @@ type TypographySettings = Pick<
 >;
 
 /** Labels the font rows whose family or size differs from the defaults. */
-export function getChangedTypographySettingLabels(settings: TypographySettings): string[] {
+export function getChangedTypographySettingLabels(
+  settings: TypographySettings,
+  t: Translate = i18n.t,
+): string[] {
   return [
     ...(settings.fontFamilySans !== DEFAULT_UNIFIED_SETTINGS.fontFamilySans ||
     settings.fontSizeInterface !== DEFAULT_UNIFIED_SETTINGS.fontSizeInterface
-      ? ["Interface font"]
+      ? [t("settings.restore.interfaceFont")]
       : []),
     ...(settings.fontFamilyComposer !== DEFAULT_UNIFIED_SETTINGS.fontFamilyComposer ||
     settings.fontSizePrompt !== DEFAULT_UNIFIED_SETTINGS.fontSizePrompt
-      ? ["Prompt font"]
+      ? [t("settings.restore.promptFont")]
       : []),
     ...(settings.fontFamilyCode !== DEFAULT_UNIFIED_SETTINGS.fontFamilyCode ||
     settings.fontSizeCode !== DEFAULT_UNIFIED_SETTINGS.fontSizeCode
-      ? ["Code font"]
+      ? [t("settings.restore.codeFont")]
       : []),
     ...(settings.fontFamilyTerminal !== DEFAULT_UNIFIED_SETTINGS.fontFamilyTerminal ||
     settings.fontSizeTerminal !== DEFAULT_UNIFIED_SETTINGS.fontSizeTerminal
-      ? ["Terminal font"]
+      ? [t("settings.restore.terminalFont")]
       : []),
   ];
 }
@@ -141,31 +145,36 @@ function isSamePreviewViewport(
 }
 
 /** Labels the browser-default rows that differ from the defaults. */
-export function getChangedBrowserSettingLabels(settings: BrowserDefaultSettings): string[] {
+export function getChangedBrowserSettingLabels(
+  settings: BrowserDefaultSettings,
+  t: Translate = i18n.t,
+): string[] {
   return [
     ...(isSamePreviewViewport(
       settings.browserDefaultViewport,
       DEFAULT_UNIFIED_SETTINGS.browserDefaultViewport,
     )
       ? []
-      : ["Browser viewport"]),
+      : [t("settings.restore.browserViewport")]),
     ...(settings.browserDefaultZoomFactor !== DEFAULT_UNIFIED_SETTINGS.browserDefaultZoomFactor
-      ? ["Browser zoom"]
+      ? [t("settings.restore.browserZoom")]
       : []),
     ...(settings.browserDefaultAppearance !== DEFAULT_UNIFIED_SETTINGS.browserDefaultAppearance
-      ? ["Browser appearance"]
+      ? [t("settings.restore.browserAppearance")]
       : []),
     ...(settings.browserRecordingFrameRate !== DEFAULT_UNIFIED_SETTINGS.browserRecordingFrameRate
-      ? ["Recording frame rate"]
+      ? [t("settings.restore.recordingFrameRate")]
       : []),
-    ...(settings.browserRecordingShowKeyPresses ? ["Recording key presses"] : []),
-    ...(settings.browserRecordingShowMousePresses ? ["Recording mouse presses"] : []),
+    ...(settings.browserRecordingShowKeyPresses ? [t("settings.restore.recordingKeyPresses")] : []),
+    ...(settings.browserRecordingShowMousePresses
+      ? [t("settings.restore.recordingMousePresses")]
+      : []),
     ...(settings.browserLinkTarget !== DEFAULT_UNIFIED_SETTINGS.browserLinkTarget
-      ? ["Open links in"]
+      ? [t("settings.restore.openLinksIn")]
       : []),
     ...(settings.browserAutoShowFloatingPreview !==
     DEFAULT_UNIFIED_SETTINGS.browserAutoShowFloatingPreview
-      ? ["Floating preview"]
+      ? [t("settings.restore.floatingPreview")]
       : []),
   ];
 }

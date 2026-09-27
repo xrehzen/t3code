@@ -6,6 +6,7 @@ import { FolderPlusIcon } from "lucide-react";
 import { useCallback, useMemo } from "react";
 
 import { openCommandPalette } from "~/commandPaletteBus";
+import { useTranslate } from "../../hooks/useI18n";
 import { useClientSettings } from "~/hooks/useSettings";
 import { hasExplicitComposerModelSelection } from "~/lib/chatThreadActions";
 import { selectProjectGroupingSettings } from "~/logicalProject";
@@ -43,6 +44,7 @@ export function DraftHeroHeadline({
   activeProjectRef,
   activeProjectTitle,
 }: DraftHeroHeadlineProps) {
+  const t = useTranslate();
   const projects = useProjects();
   const threads = useThreadShells();
   const { environments } = useEnvironments();
@@ -147,7 +149,9 @@ export function DraftHeroHeadline({
             />
           }
         >
-          <span className="min-w-0 truncate">{activeProjectDisplayName ?? "Choose a project"}</span>
+          <span className="min-w-0 truncate">
+            {activeProjectDisplayName ?? t("composer.draftHero.chooseProject")}
+          </span>
         </TooltipTrigger>
         {activeProjectDisplayName ? (
           <TooltipPopup side="top">{activeProjectDisplayName}</TooltipPopup>
@@ -217,7 +221,7 @@ export function DraftHeroHeadline({
         <MenuSeparator />
         <MenuItem onClick={openAddProject}>
           <FolderPlusIcon />
-          New project
+          {t("action.newProject")}
         </MenuItem>
       </MenuPopup>
     </Menu>
@@ -227,7 +231,7 @@ export function DraftHeroHeadline({
       onClick={openAddProject}
       className="pointer-events-auto inline cursor-pointer border-muted-foreground/35 border-b border-dotted text-muted-foreground/60 transition-colors hover:border-muted-foreground/60 hover:text-muted-foreground/80 focus-visible:rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
     >
-      {activeProjectTitle ?? "Add a project"}
+      {activeProjectTitle ?? t("composer.draftHero.addProjectToStart")}
     </button>
   );
 
@@ -236,10 +240,14 @@ export function DraftHeroHeadline({
   // in the h1; without an explicit label its widget state bleeds into the
   // announced phrase.
   const headingLabel = hasResolvedProject
-    ? `What should we build in ${activeProjectDisplayName}?`
+    ? t("composer.draftHero.buildIn", {
+        project: activeProjectDisplayName ?? t("composer.draftHero.chooseProject"),
+      })
     : canChooseProject
-      ? `${activeProjectDisplayName ?? "Choose a project"} to start`
-      : "Add a project to start";
+      ? t("composer.draftHero.toStartAria", {
+          project: activeProjectDisplayName ?? t("composer.draftHero.chooseProject"),
+        })
+      : t("composer.draftHero.addProjectToStart");
 
   return (
     <h1
@@ -247,11 +255,21 @@ export function DraftHeroHeadline({
       className="mx-auto w-full max-w-5xl text-center font-normal text-2xl text-foreground tracking-tight sm:text-3xl"
     >
       {hasResolvedProject ? (
-        <>What should we build in {projectSelector}?</>
+        // The project picker is a control, so the visible sentence cannot be one
+        // interpolated pattern; `buildIn` is the accessible name of this heading
+        // and the lead/tail fragments here are the same sentence split around
+        // it. Turkish puts the project first, so its lead fragment is empty.
+        <>
+          {t("composer.draftHero.buildInLead")}
+          {projectSelector}
+          {t("composer.draftHero.buildInTail")}
+        </>
       ) : canChooseProject ? (
-        <>{projectSelector} to start</>
+        <>
+          {projectSelector} {t("composer.draftHero.toStart")}
+        </>
       ) : (
-        <>Add a project to start</>
+        <>{t("composer.draftHero.addProjectToStart")}</>
       )}
     </h1>
   );

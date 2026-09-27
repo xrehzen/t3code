@@ -5,6 +5,8 @@ import {
 } from "@t3tools/contracts";
 import { memo } from "react";
 import { EllipsisIcon, TriangleAlertIcon } from "lucide-react";
+import { useTranslate } from "../../hooks/useI18n";
+import type { Translate } from "@t3tools/shared/i18n";
 import { Button } from "../ui/button";
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from "../ui/menu";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
@@ -20,23 +22,28 @@ interface ComposerPendingApprovalActionsProps {
   ) => Promise<unknown>;
 }
 
-const DEFAULT_APPROVAL_OPTIONS = [
-  { decision: "cancel", label: "Cancel" },
-  { decision: "decline", label: "Decline" },
-  { decision: "acceptForSession", label: "Always allow this session" },
-  { decision: "accept", label: "Approve" },
-] satisfies ReadonlyArray<ProviderApprovalOption>;
+/** Resolved per render so the built-in options follow the active locale. */
+function defaultApprovalOptions(t: Translate): ReadonlyArray<ProviderApprovalOption> {
+  return [
+    { decision: "cancel", label: t("action.cancel") },
+    { decision: "decline", label: t("action.decline") },
+    { decision: "acceptForSession", label: t("composer.approval.alwaysAllowSession") },
+    { decision: "accept", label: t("action.approve") },
+  ];
+}
 
 export const ComposerPendingApprovalActions = memo(function ComposerPendingApprovalActions({
   requestId,
   isResponding,
-  options = DEFAULT_APPROVAL_OPTIONS,
+  options,
   onRespondToApproval,
 }: ComposerPendingApprovalActionsProps) {
-  const primaryOptions = options.filter(
+  const t = useTranslate();
+  const resolvedOptions = options ?? defaultApprovalOptions(t);
+  const primaryOptions = resolvedOptions.filter(
     (option) => option.decision === "decline" || option.decision === "accept",
   );
-  const moreOptions = options.filter(
+  const moreOptions = resolvedOptions.filter(
     (option) => option.decision !== "decline" && option.decision !== "accept",
   );
 
@@ -69,7 +76,13 @@ export const ComposerPendingApprovalActions = memo(function ComposerPendingAppro
         <Menu>
           <MenuTrigger
             disabled={isResponding}
-            render={<Button size="icon-xs" variant="outline" aria-label="More approval options" />}
+            render={
+              <Button
+                size="icon-xs"
+                variant="outline"
+                aria-label={t("composer.approval.moreOptions")}
+              />
+            }
           >
             <EllipsisIcon />
           </MenuTrigger>

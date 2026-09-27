@@ -6,6 +6,7 @@ import {
   type ScopedThreadRef,
   type ServerProviderModel,
 } from "@t3tools/contracts";
+import { i18n, type MessageKey } from "@t3tools/shared/i18n";
 import {
   applyClaudePromptEffortPrefix,
   buildProviderOptionSelectionsFromDescriptors,
@@ -27,6 +28,8 @@ import {
   MenuTrigger,
 } from "../ui/menu";
 import { useComposerDraftStore, DraftId } from "../../composerDraftStore";
+import { useTranslate } from "../../hooks/useI18n";
+import type { Translate } from "@t3tools/shared/i18n";
 import { getProviderModelCapabilities } from "../../providerModels";
 import { cn } from "~/lib/utils";
 import { Badge } from "../ui/badge";
@@ -42,16 +45,17 @@ import { useComposerMenuState } from "./useComposerMenuState";
 
 type ProviderOptions = ReadonlyArray<ProviderOptionSelection>;
 
-const SAVED_OPTION_LABELS: Readonly<Record<string, string>> = {
-  agent: "Agent",
-  effort: "Effort",
-  reasoningEffort: "Reasoning effort",
-  variant: "Reasoning",
+const SAVED_OPTION_LABEL_KEYS: Readonly<Record<string, MessageKey>> = {
+  agent: "composer.traits.optionAgent",
+  effort: "composer.traits.optionEffort",
+  reasoningEffort: "composer.traits.optionReasoningEffort",
+  variant: "composer.traits.optionReasoning",
 };
 
-function savedOptionLabel(id: string): string {
+function savedOptionLabel(t: Translate, id: string): string {
+  const key = SAVED_OPTION_LABEL_KEYS[id];
   return (
-    SAVED_OPTION_LABELS[id] ??
+    (key ? t(key) : null) ??
     id.replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/^./, (character) => character.toUpperCase())
   );
 }
@@ -59,18 +63,19 @@ function savedOptionLabel(id: string): string {
 /** Read-only descriptors for saved values whose OpenCode model metadata is unavailable. */
 export function buildUnavailableModelOptionDescriptors(
   selections: ProviderOptions | null | undefined,
+  t: Translate = i18n.t,
 ): ReadonlyArray<ProviderOptionDescriptor> {
   return (selections ?? []).map((selection) =>
     typeof selection.value === "boolean"
       ? {
           id: selection.id,
-          label: savedOptionLabel(selection.id),
+          label: savedOptionLabel(t, selection.id),
           type: "boolean" as const,
           currentValue: selection.value,
         }
       : {
           id: selection.id,
-          label: savedOptionLabel(selection.id),
+          label: savedOptionLabel(t, selection.id),
           type: "select" as const,
           options: [{ id: selection.value, label: selection.value }],
           currentValue: selection.value,
@@ -91,10 +96,10 @@ type TraitsPersistence =
 
 const ULTRATHINK_PROMPT_PREFIX = "Ultrathink:\n";
 
-function DefaultBadge() {
+function DefaultBadge({ t }: { t: Translate }) {
   return (
     <Badge variant="outline" size="sm" className="min-w-0">
-      Default
+      {t("action.default")}
     </Badge>
   );
 }
@@ -291,6 +296,7 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
   planModeEnabled,
   ...persistence
 }: TraitsMenuContentProps & TraitsPersistence) {
+  const t = useTranslate();
   const setProviderModelOptions = useComposerDraftStore((store) => store.setProviderModelOptions);
   const updateModelOptions = useCallback(
     (nextOptions: ProviderOptions | undefined) => {
@@ -396,8 +402,7 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
               </div>
               {ultrathinkInBodyText && descriptor.id === primarySelectDescriptor?.id ? (
                 <div className="px-2 pb-1.5 text-muted-foreground/80 text-xs">
-                  Your prompt contains &quot;ultrathink&quot; in the text. Remove it to change this
-                  option.
+                  {t("composer.traits.ultrathinkInPrompt")}
                 </div>
               ) : null}
               <MenuRadioGroup
@@ -421,7 +426,7 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
                           {option.isDefault ? (
                             <>
                               {" "}
-                              <DefaultBadge />
+                              <DefaultBadge t={t} />
                             </>
                           ) : null}
                         </span>
@@ -460,7 +465,7 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
                 {(["on", "off"] as const).map((value) => (
                   <MenuRadioItem key={value} value={value} hideIndicator closeOnClick>
                     <span className="flex w-full min-w-0 items-center justify-between gap-3">
-                      <span>{value === "on" ? "On" : "Off"}</span>
+                      <span>{value === "on" ? t("action.on") : t("action.off")}</span>
                     </span>
                   </MenuRadioItem>
                 ))}
@@ -481,19 +486,24 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
  * fast mode is the only trait, where a bare bolt (or bare chevron) would leave
  * the trigger unreadable.
  */
-export function buildTraitsTriggerDisplay(input: {
-  provider: ProviderDriverKind;
-  descriptors: ReadonlyArray<ProviderOptionDescriptor>;
-  primarySelectDescriptorId: string | null;
-  ultrathinkPromptControlled: boolean;
-}): { label: string; showFastModeIcon: boolean } {
+export function buildTraitsTriggerDisplay(
+  input: {
+    provider: ProviderDriverKind;
+    descriptors: ReadonlyArray<ProviderOptionDescriptor>;
+    primarySelectDescriptorId: string | null;
+    ultrathinkPromptControlled: boolean;
+  },
+  t: Translate = i18n.t,
+): { label: string; showFastModeIcon: boolean } {
   let fastModeFallbackLabel: string | null = null;
   let fastModeEnabled = false;
   const labels: Array<string> = [];
   for (const descriptor of input.descriptors) {
     if (descriptor.id === "fastMode" && descriptor.type === "boolean") {
       fastModeEnabled = descriptor.currentValue === true;
-      fastModeFallbackLabel = fastModeEnabled ? "Fast" : "Normal";
+      fastModeFallbackLabel = fastModeEnabled
+        ? t("composer.traits.fast")
+        : t("composer.traits.normal");
       continue;
     }
     if (
@@ -507,15 +517,18 @@ export function buildTraitsTriggerDisplay(input: {
         fastModeEnabled = currentValue === fastTier.id;
         fastModeFallbackLabel =
           descriptor.options.find(({ id }) => id === currentValue)?.label ??
-          (fastModeEnabled ? "Fast" : "Normal");
+          (fastModeEnabled ? t("composer.traits.fast") : t("composer.traits.normal"));
         continue;
       }
     }
     const label =
       input.ultrathinkPromptControlled && descriptor.id === input.primarySelectDescriptorId
-        ? "Ultrathink"
+        ? t("composer.traits.ultrathink")
         : descriptor.type === "boolean"
-          ? `${descriptor.label} ${descriptor.currentValue === true ? "On" : "Off"}`
+          ? t("composer.traits.booleanState", {
+              label: descriptor.label,
+              state: descriptor.currentValue === true ? t("action.on") : t("action.off"),
+            })
           : getProviderOptionCurrentLabel(descriptor);
     if (typeof label === "string" && label.length > 0) {
       labels.push(label);
@@ -551,6 +564,7 @@ export const TraitsPicker = memo(function TraitsPicker({
     size?: ComposerControlSize;
     hidden?: boolean;
   }) {
+  const t = useTranslate();
   const composerFloatingLayerProps = useComposerMenuProps();
   const [isMenuOpen, setIsMenuOpen] = useComposerMenuState(hidden);
   const { descriptors, primarySelectDescriptor, ultrathinkPromptControlled } =
@@ -577,13 +591,21 @@ export const TraitsPicker = memo(function TraitsPicker({
     return null;
   }
 
-  const { label: triggerLabel, showFastModeIcon } = buildTraitsTriggerDisplay({
-    provider,
-    descriptors,
-    primarySelectDescriptorId: primarySelectDescriptor?.id ?? null,
-    ultrathinkPromptControlled,
-  });
-  const accessibleLabel = showFastModeIcon ? `${triggerLabel}, Fast mode on` : triggerLabel;
+  const { label: triggerLabel, showFastModeIcon } = buildTraitsTriggerDisplay(
+    {
+      provider,
+      descriptors,
+      primarySelectDescriptorId: primarySelectDescriptor?.id ?? null,
+      ultrathinkPromptControlled,
+    },
+    t,
+  );
+  const accessibleLabel = showFastModeIcon
+    ? t("composer.traits.triggerAria", {
+        label: triggerLabel,
+        fastMode: t("composer.traits.fastModeOn"),
+      })
+    : triggerLabel;
   const fastModeIcon = showFastModeIcon ? (
     <>
       <ComposerControlIcon
@@ -598,7 +620,7 @@ export const TraitsPicker = memo(function TraitsPicker({
               : "text-foreground",
         )}
       />
-      <span className="sr-only">Fast mode on</span>
+      <span className="sr-only">{t("composer.traits.fastModeOn")}</span>
     </>
   ) : null;
 

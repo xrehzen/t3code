@@ -9,6 +9,7 @@ import {
   MenuSeparator as MenuDivider,
   MenuTrigger,
 } from "../ui/menu";
+import { useTranslate } from "../../hooks/useI18n";
 import { ComposerControl, ComposerControlIcon } from "./ComposerControl";
 import { useComposerMenuProps } from "./composerEventScope";
 import { useComposerMenuState } from "./useComposerMenuState";
@@ -28,6 +29,7 @@ export const CompactComposerControlsMenu = memo(function CompactComposerControls
   onToggleInteractionMode: () => void;
   onRuntimeModeChange: (mode: RuntimeMode) => void;
 }) {
+  const t = useTranslate();
   const composerFloatingLayerProps = useComposerMenuProps();
   const size = props.size ?? "sm";
   const [open, setOpen] = useComposerMenuState(props.hidden);
@@ -39,7 +41,7 @@ export const CompactComposerControlsMenu = memo(function CompactComposerControls
           <ComposerControl
             size={size}
             className="shrink-0"
-            aria-label="More composer controls"
+            aria-label={t("composer.controls.moreAria")}
             data-composer-shortcut={
               props.traitsMenuContent ? "composer.mode composer.effort" : "composer.mode"
             }
@@ -57,7 +59,9 @@ export const CompactComposerControlsMenu = memo(function CompactComposerControls
         ) : null}
         {props.showInteractionModeToggle ? (
           <>
-            <div className="px-2 py-1.5 font-medium text-muted-foreground text-xs">Mode</div>
+            <div className="px-2 py-1.5 font-medium text-muted-foreground text-xs">
+              {t("composer.mode.header")}
+            </div>
             <MenuRadioGroup
               value={props.interactionMode}
               onValueChange={(value) => {
@@ -65,13 +69,15 @@ export const CompactComposerControlsMenu = memo(function CompactComposerControls
                 props.onToggleInteractionMode();
               }}
             >
-              <MenuRadioItem value="default">Chat</MenuRadioItem>
-              <MenuRadioItem value="plan">Plan</MenuRadioItem>
+              <MenuRadioItem value="default">{t("composer.mode.chat")}</MenuRadioItem>
+              <MenuRadioItem value="plan">{t("composer.mode.plan")}</MenuRadioItem>
             </MenuRadioGroup>
             <MenuDivider />
           </>
         ) : null}
-        <div className="px-2 py-1.5 font-medium text-muted-foreground text-xs">Access</div>
+        <div className="px-2 py-1.5 font-medium text-muted-foreground text-xs">
+          {t("composer.mode.access")}
+        </div>
         <MenuRadioGroup
           value={props.runtimeMode}
           onValueChange={(value) => {
@@ -79,10 +85,12 @@ export const CompactComposerControlsMenu = memo(function CompactComposerControls
             props.onRuntimeModeChange(value as RuntimeMode);
           }}
         >
-          <MenuRadioItem value="approval-required">Supervised</MenuRadioItem>
-          <MenuRadioItem value="auto-accept-edits">Auto-accept edits</MenuRadioItem>
-          <MenuRadioItem value="auto">Auto</MenuRadioItem>
-          <MenuRadioItem value="full-access">Full access</MenuRadioItem>
+          <MenuRadioItem value="approval-required">{t("composer.mode.supervised")}</MenuRadioItem>
+          <MenuRadioItem value="auto-accept-edits">
+            {t("composer.mode.autoAcceptEdits")}
+          </MenuRadioItem>
+          <MenuRadioItem value="auto">{t("composer.mode.auto")}</MenuRadioItem>
+          <MenuRadioItem value="full-access">{t("composer.mode.fullAccess")}</MenuRadioItem>
         </MenuRadioGroup>
       </MenuPopup>
     </Menu>

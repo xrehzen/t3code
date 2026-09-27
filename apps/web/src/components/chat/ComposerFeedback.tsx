@@ -4,6 +4,7 @@ import {
 } from "@t3tools/client-runtime/state/threads";
 import { MessageSquareIcon } from "lucide-react";
 
+import { i18n } from "@t3tools/shared/i18n";
 import { writeTextToClipboard } from "../../hooks/useCopyToClipboard";
 import { Button } from "../ui/button";
 import { toastManager } from "../ui/toast";
@@ -13,6 +14,7 @@ export function feedbackBannerItem(
   submission: CodexFeedbackSubmission,
   onDismiss: () => void,
 ): ComposerBannerStackItem | null {
+  const t = i18n.t;
   const notice = codexFeedbackNotice(submission);
   if (!notice) return null;
   return {
@@ -28,22 +30,23 @@ export function feedbackBannerItem(
           size="xs"
           variant="ghost"
           onClick={() => {
-            void writeTextToClipboard(submission.feedbackId, "Codex feedback thread ID").catch(
-              (error: unknown) => {
-                toastManager.add({
-                  type: "error",
-                  title: "Could not copy thread ID",
-                  description: error instanceof Error ? error.message : "An error occurred.",
-                });
-              },
-            );
+            void writeTextToClipboard(
+              submission.feedbackId,
+              t("composer.feedback.copyTarget"),
+            ).catch((error: unknown) => {
+              toastManager.add({
+                type: "error",
+                title: t("composer.feedback.copyFailed"),
+                description: error instanceof Error ? error.message : t("error.fallback"),
+              });
+            });
           }}
         >
-          Copy ID
+          {t("action.copyId")}
         </Button>
       ) : undefined,
     ...(submission.status !== "uploading"
-      ? { dismissLabel: "Dismiss feedback notice", onDismiss }
+      ? { dismissLabel: t("composer.feedback.dismiss"), onDismiss }
       : {}),
   };
 }

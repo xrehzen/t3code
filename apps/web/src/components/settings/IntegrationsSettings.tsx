@@ -752,7 +752,7 @@ function DeviceIntegrationControls({
         {...searchableSetting("device-hub")}
         serverScoped
         settingKeys={["enableDeviceSupport"]}
-        description={deviceHubDescription}
+        description={deviceHubDescription()}
         control={
           <>
             <DeviceToolVersions
@@ -816,7 +816,7 @@ function DeviceIntegrationControls({
         {...searchableSetting("agent-device-access")}
         serverScoped
         settingKeys={["enableAgentDeviceAccess"]}
-        description={agentDeviceDescription}
+        description={agentDeviceDescription()}
         control={
           <>
             <DeviceToolVersions

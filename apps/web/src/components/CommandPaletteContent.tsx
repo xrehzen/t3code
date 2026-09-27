@@ -1,11 +1,13 @@
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
 import { type ComponentProps, type ReactNode, useLayoutEffect, useRef } from "react";
 
+import { useTranslate } from "../hooks/useI18n";
 import { Command, CommandFooter, CommandInput, CommandPanel } from "./ui/command";
 import { Kbd, KbdGroup } from "./ui/kbd";
 
 type CommandPaletteContentProps = Omit<ComponentProps<typeof Command>, "children"> & {
   readonly children: ReactNode;
+  /** Defaults to the translated "Close"; mode surfaces pass their own meaning for Esc. */
   readonly escapeLabel?: ReactNode;
   readonly footerActionLabel?: ReactNode;
   readonly footerTrailing?: ReactNode;
@@ -27,7 +29,7 @@ type CommandPaletteContentProps = Omit<ComponentProps<typeof Command>, "children
  */
 export function CommandPaletteContent({
   children,
-  escapeLabel = "Close",
+  escapeLabel,
   footerActionLabel,
   footerTrailing,
   inputAccessory,
@@ -37,6 +39,7 @@ export function CommandPaletteContent({
   testId,
   ...commandProps
 }: CommandPaletteContentProps) {
+  const t = useTranslate();
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Direct-open flows replace the initial palette view after the dialog has
@@ -73,7 +76,7 @@ export function CommandPaletteContent({
               <Kbd>
                 <ArrowDownIcon />
               </Kbd>
-              <span>Navigate</span>
+              <span>{t("palette.footer.navigate")}</span>
             </KbdGroup>
             {footerActionLabel !== undefined ? (
               <KbdGroup>
@@ -84,12 +87,12 @@ export function CommandPaletteContent({
             {showBackHint ? (
               <KbdGroup>
                 <Kbd>Backspace</Kbd>
-                <span>Back</span>
+                <span>{t("action.back")}</span>
               </KbdGroup>
             ) : null}
             <KbdGroup>
               <Kbd>Esc</Kbd>
-              <span>{escapeLabel}</span>
+              <span>{escapeLabel ?? t("action.close")}</span>
             </KbdGroup>
           </div>
           {footerTrailing}

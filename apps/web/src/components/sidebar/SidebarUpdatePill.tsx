@@ -2,6 +2,7 @@ import type { DesktopUpdateState } from "@t3tools/contracts";
 import { TriangleAlertIcon } from "lucide-react";
 import { type ComponentProps, useCallback, useEffect, useId, useRef, useState } from "react";
 import { flushSync } from "react-dom";
+import { i18n } from "@t3tools/shared/i18n";
 import { isElectron } from "../../env";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { cn } from "../../lib/utils";
@@ -102,7 +103,7 @@ function SidebarUpdateArchitectureWarningContent() {
   return (
     <Alert variant="warning">
       <TriangleAlertIcon />
-      <AlertTitle>Intel build on Apple Silicon</AlertTitle>
+      <AlertTitle>{i18n.t("update.sidebar.intelOnAppleSilicon")}</AlertTitle>
       <AlertDescription>{description}</AlertDescription>
     </Alert>
   );
@@ -146,10 +147,10 @@ function SidebarUpdateControl() {
   const tooltip = showUpdateDetails
     ? state
       ? getDesktopUpdateButtonTooltip(state)
-      : "Update available"
+      : i18n.t("update.sidebar.available")
     : showCheckIcon
-      ? "Checking for updates…"
-      : "Check for updates";
+      ? i18n.t("update.sidebar.checking")
+      : i18n.t("update.sidebar.check");
   const disabled = showCheckIcon
     ? true
     : showUpdateDetails
@@ -193,7 +194,7 @@ function SidebarUpdateControl() {
           toastManager.add(
             stackedThreadToast({
               type: "error",
-              title: "Could not download update",
+              title: i18n.t("update.toast.downloadFailed"),
               description: actionError,
             }),
           );
@@ -202,8 +203,8 @@ function SidebarUpdateControl() {
           toastManager.add(
             stackedThreadToast({
               type: "error",
-              title: "Could not start update download",
-              description: error instanceof Error ? error.message : "An unexpected error occurred.",
+              title: i18n.t("update.toast.downloadStartFailed"),
+              description: error instanceof Error ? error.message : i18n.t("error.unexpected"),
             }),
           );
         })
@@ -222,8 +223,11 @@ function SidebarUpdateControl() {
         toastManager.add(
           stackedThreadToast({
             type: "error",
-            title: "Could not confirm update",
-            description: error instanceof Error ? error.message : "Update confirmation failed.",
+            title: i18n.t("update.toast.confirmFailed"),
+            description:
+              error instanceof Error
+                ? error.message
+                : i18n.t("update.toast.confirmFailedDescription"),
           }),
         );
         return;
@@ -241,7 +245,7 @@ function SidebarUpdateControl() {
           toastManager.add(
             stackedThreadToast({
               type: "error",
-              title: "Could not install update",
+              title: i18n.t("update.toast.installFailed"),
               description: actionError,
             }),
           );
@@ -250,8 +254,8 @@ function SidebarUpdateControl() {
           toastManager.add(
             stackedThreadToast({
               type: "error",
-              title: "Could not install update",
-              description: error instanceof Error ? error.message : "An unexpected error occurred.",
+              title: i18n.t("update.toast.installFailed"),
+              description: error instanceof Error ? error.message : i18n.t("error.unexpected"),
             }),
           );
         })
@@ -270,9 +274,8 @@ function SidebarUpdateControl() {
         toastManager.add(
           stackedThreadToast({
             type: "error",
-            title: "Could not check for updates",
-            description:
-              result.state.message ?? "Automatic updates are not available in this build.",
+            title: i18n.t("update.toast.checkFailed"),
+            description: result.state.message ?? i18n.t("update.toast.unavailableInBuild"),
           }),
         );
       })
@@ -280,8 +283,11 @@ function SidebarUpdateControl() {
         toastManager.add(
           stackedThreadToast({
             type: "error",
-            title: "Could not check for updates",
-            description: error instanceof Error ? error.message : "Update check failed.",
+            title: i18n.t("update.toast.checkFailed"),
+            description:
+              error instanceof Error
+                ? error.message
+                : i18n.t("update.toast.checkFailedDescription"),
           }),
         );
       })
@@ -392,7 +398,7 @@ function SidebarUpdateControl() {
         {showReleaseNotesPopover && state ? (
           <PopoverPopup
             align="center"
-            aria-label="Nightly update release notes"
+            aria-label={i18n.t("update.sidebar.releaseNotesAria")}
             initialFocus={false}
             onKeyDownCapture={(event) => {
               if (

@@ -1,5 +1,6 @@
 import { type ResolvedKeybindingsConfig } from "@t3tools/contracts";
 import { ChevronRightIcon } from "lucide-react";
+import { useTranslate } from "../hooks/useI18n";
 import { shortcutLabelForCommand } from "../keybindings";
 import {
   type CommandPaletteActionItem,
@@ -26,13 +27,15 @@ interface CommandPaletteResultsProps {
 }
 
 export function CommandPaletteResults(props: CommandPaletteResultsProps) {
+  const t = useTranslate();
+
   if (props.groups.length === 0) {
     return (
       <div className="py-10 text-center text-sm text-muted-foreground">
         {props.emptyStateMessage ??
           (props.isActionsOnly
-            ? "No matching actions."
-            : "No matching commands, projects, or threads.")}
+            ? t("palette.empty.noMatchingActions")
+            : t("palette.empty.noResults"))}
       </div>
     );
   }

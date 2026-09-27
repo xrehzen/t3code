@@ -53,6 +53,13 @@ export function resolveTimestampLocale(
   }
 }
 
+/**
+ * Timestamps follow the *host* locale, not the interface language, and that is
+ * deliberate: a clock and a calendar are a property of the machine, so someone
+ * running a Turkish desktop reads "ÖS 6:00" even with an English interface.
+ * Interface-language formatting is what the message catalog is for.
+ */
+
 function readHostSystemLocale(): string | null {
   if (typeof window === "undefined") return null;
   return window.desktopBridge?.getSystemLocale?.() ?? null;

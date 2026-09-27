@@ -6,6 +6,7 @@ import { StageBackdropButtonArt, useSidebarStageBackdropVariant } from "../Sideb
 import { Button } from "../ui/button";
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from "../ui/menu";
 import { Spinner } from "../ui/spinner";
+import { useTranslate } from "../../hooks/useI18n";
 import { composerFloatingLayerProps } from "./composerEventScope";
 
 interface PendingActionState {
@@ -34,22 +35,27 @@ interface ComposerPrimaryActionsProps {
   onImplementPlanInNewThread: () => void;
 }
 
-const formatPendingPrimaryActionLabel = (input: {
-  compact: boolean;
-  isLastQuestion: boolean;
-  isResponding: boolean;
-  questionIndex: number;
-}) => {
+const formatPendingPrimaryActionLabel = (
+  t: ReturnType<typeof useTranslate>,
+  input: {
+    compact: boolean;
+    isLastQuestion: boolean;
+    isResponding: boolean;
+    questionIndex: number;
+  },
+) => {
   if (input.isResponding) {
-    return "Submitting...";
+    return t("composer.primary.submittingDots");
   }
   if (input.compact) {
-    return input.isLastQuestion ? "Submit" : "Next";
+    return input.isLastQuestion ? t("composer.primary.submit") : t("composer.primary.next");
   }
   if (!input.isLastQuestion) {
-    return "Next question";
+    return t("composer.primary.nextQuestion");
   }
-  return input.questionIndex > 0 ? "Submit answers" : "Submit answer";
+  return input.questionIndex > 0
+    ? t("composer.primary.submitAnswers")
+    : t("composer.primary.submitAnswer");
 };
 
 // The composer's labeled primary actions (Submit, Refine, Implement) share the send button's
@@ -78,6 +84,7 @@ export const ComposerPrimaryActions = memo(function ComposerPrimaryActions({
   onInterrupt,
   onImplementPlanInNewThread,
 }: ComposerPrimaryActionsProps) {
+  const t = useTranslate();
   const pointerFocusProps = preserveComposerFocusOnPointerDown
     ? { onPointerDown: preventPointerFocus }
     : undefined;
@@ -100,7 +107,7 @@ export const ComposerPrimaryActions = memo(function ComposerPrimaryActions({
       )}
       {...pointerFocusProps}
       onClick={onInterrupt}
-      aria-label="Stop generation"
+      aria-label={t("composer.primary.stopAria")}
     >
       <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
         <rect x="2" y="2" width="8" height="8" rx="1.5" />
@@ -120,7 +127,7 @@ export const ComposerPrimaryActions = memo(function ComposerPrimaryActions({
               {...pointerFocusProps}
               onClick={onPreviousPendingQuestion}
               disabled={pendingAction.isResponding}
-              aria-label="Previous question"
+              aria-label={t("composer.primary.previousQuestionAria")}
             >
               <ChevronLeftIcon className="size-3.5" />
             </Button>
@@ -132,7 +139,7 @@ export const ComposerPrimaryActions = memo(function ComposerPrimaryActions({
               onClick={onPreviousPendingQuestion}
               disabled={pendingAction.isResponding}
             >
-              Previous
+              {t("composer.primary.previous")}
             </Button>
           )
         ) : null}
@@ -146,7 +153,7 @@ export const ComposerPrimaryActions = memo(function ComposerPrimaryActions({
             (pendingAction.isLastQuestion ? !pendingAction.isComplete : !pendingAction.canAdvance)
           }
         >
-          {formatPendingPrimaryActionLabel({
+          {formatPendingPrimaryActionLabel(t, {
             compact,
             isLastQuestion: pendingAction.isLastQuestion,
             isResponding: pendingAction.isResponding,
@@ -166,7 +173,9 @@ export const ComposerPrimaryActions = memo(function ComposerPrimaryActions({
           {...pointerFocusProps}
           disabled={isSendBusy || isSendDisabled || isConnecting || isEnvironmentUnavailable}
         >
-          {isConnecting || isSendBusy ? "Sending..." : "Refine"}
+          {isConnecting || isSendBusy
+            ? t("composer.primary.sending")
+            : t("composer.primary.refine")}
         </button>
       );
     }
@@ -179,7 +188,9 @@ export const ComposerPrimaryActions = memo(function ComposerPrimaryActions({
           {...pointerFocusProps}
           disabled={isSendBusy || isSendDisabled || isConnecting || isEnvironmentUnavailable}
         >
-          {isConnecting || isSendBusy ? "Sending..." : "Implement"}
+          {isConnecting || isSendBusy
+            ? t("composer.primary.sending")
+            : t("composer.primary.implement")}
         </button>
         <Menu>
           <MenuTrigger
@@ -190,7 +201,7 @@ export const ComposerPrimaryActions = memo(function ComposerPrimaryActions({
                   messageActionPillClassName,
                   "h-9 rounded-l-none border-l border-message-action-foreground/20 px-2 sm:h-8",
                 )}
-                aria-label="Implementation actions"
+                aria-label={t("composer.primary.implementationActionsAria")}
                 {...pointerFocusProps}
                 disabled={isSendBusy || isSendDisabled || isConnecting || isEnvironmentUnavailable}
               />
@@ -203,7 +214,7 @@ export const ComposerPrimaryActions = memo(function ComposerPrimaryActions({
               disabled={isSendBusy || isSendDisabled || isConnecting || isEnvironmentUnavailable}
               onClick={() => void onImplementPlanInNewThread()}
             >
-              Implement in a new thread
+              {t("composer.primary.implementInNewThread")}
             </MenuItem>
           </MenuPopup>
         </Menu>
@@ -230,18 +241,18 @@ export const ComposerPrimaryActions = memo(function ComposerPrimaryActions({
       }
       aria-label={
         isEnvironmentUnavailable
-          ? "Environment disconnected"
+          ? t("composer.primary.environmentDisconnected")
           : sendDisabledReason
             ? sendDisabledReason
             : isConnecting
-              ? "Connecting"
+              ? t("composer.primary.connecting")
               : isPreparingWorktree
-                ? "Preparing worktree"
+                ? t("composer.primary.preparingWorktree")
                 : isSendBusy
-                  ? "Sending"
+                  ? t("composer.primary.sendingShort")
                   : isRunning
-                    ? "Queue message"
-                    : "Send message"
+                    ? t("composer.primary.queueMessage")
+                    : t("composer.primary.send")
       }
     >
       {stageBackdropVariant ? (
