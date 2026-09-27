@@ -48,6 +48,28 @@ export const TimestampFormat = Schema.Literals(["locale", "12-hour", "24-hour"])
 export type TimestampFormat = typeof TimestampFormat.Type;
 const DEFAULT_TIMESTAMP_FORMAT: TimestampFormat = "locale";
 
+const InterfaceLanguageValue = Schema.Literals(["system", "en", "tr"]);
+export type InterfaceLanguage = typeof InterfaceLanguageValue.Type;
+export const DEFAULT_INTERFACE_LANGUAGE: InterfaceLanguage = "system";
+
+/**
+ * Reads a stored interface language onto the three values this build knows.
+ *
+ * Other builds and forks write this preference as a BCP 47 tag (`en-US`,
+ * `tr-TR`), so a strict literal union here turns a value the user never typed
+ * into a startup failure: the desktop cannot decode its own settings and dies
+ * before a window appears. A reading preference is not worth that, so the tag
+ * is folded onto the catalog it names and anything unrecognised falls back to
+ * `system`, which is the documented default anyway.
+ */
+function readStoredInterfaceLanguage(raw: unknown): InterfaceLanguage {
+  if (typeof raw !== "string") {
+    return DEFAULT_INTERFACE_LANGUAGE;
+  }
+  const primary = raw.trim().replaceAll("_", "-").split("-")[0]?.toLowerCase() ?? "";
+  return primary === "en" || primary === "tr" ? primary : DEFAULT_INTERFACE_LANGUAGE;
+}
+
 /**
  * Interface language for the desktop and web clients. `system` resolves
  * against the host locale, which is what most people want: a Turkish desktop
@@ -60,9 +82,15 @@ const DEFAULT_TIMESTAMP_FORMAT: TimestampFormat = "locale";
  * server would drag in mixed-value UI for a field that only ever has one value
  * on screen.
  */
-export const InterfaceLanguage = Schema.Literals(["system", "en", "tr"]);
-export type InterfaceLanguage = typeof InterfaceLanguage.Type;
-export const DEFAULT_INTERFACE_LANGUAGE: InterfaceLanguage = "system";
+export const InterfaceLanguage = Schema.Unknown.pipe(
+  Schema.decodeTo(
+    InterfaceLanguageValue,
+    SchemaTransformation.transform<InterfaceLanguage, unknown>({
+      decode: readStoredInterfaceLanguage,
+      encode: (value) => value,
+    }),
+  ),
+);
 
 export const DiffLayout = Schema.Literals(["stacked", "split"]);
 export type DiffLayout = typeof DiffLayout.Type;

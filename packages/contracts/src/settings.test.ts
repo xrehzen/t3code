@@ -77,6 +77,53 @@ describe("ClientSettings rich text composer", () => {
   });
 });
 
+describe("ClientSettings interface language", () => {
+  it("defaults to the host locale and keeps the three known values", () => {
+    expect(decodeClientSettings({}).interfaceLanguage).toBe("system");
+    for (const language of ["system", "en", "tr"] as const) {
+      expect(decodeClientSettings({ interfaceLanguage: language }).interfaceLanguage).toBe(
+        language,
+      );
+    }
+  });
+
+  // A settings value the user never typed must not be able to stop the app
+  // from starting. Other builds write this preference as a BCP 47 tag.
+  it.each(["en-US", "tr-TR", "en_US", "EN", "  tr  ", "en-GB"])(
+    "folds the stored tag %s onto the catalog it names",
+    (stored) => {
+      const decoded = decodeClientSettings({ interfaceLanguage: stored });
+      expect(decoded.interfaceLanguage).toBe(
+        stored.trim().toLowerCase().startsWith("tr") ? "tr" : "en",
+      );
+    },
+  );
+
+  it.each(["de-DE", "fr", "system", "", 42, null, true, ["tr"], { locale: "tr" }])(
+    "falls back to the host locale for the unusable value %s",
+    (stored) => {
+      expect(decodeClientSettings({ interfaceLanguage: stored }).interfaceLanguage).toBe("system");
+    },
+  );
+
+  it("decodes a settings file another build wrote without failing", () => {
+    // The document that took the desktop down: a real file, with a tag from
+    // another build and two keys this build has never heard of.
+    const document = {
+      appearanceContrast: 100,
+      browserDefaultZoomFactor: 1,
+      composerCollapseOnBlur: true,
+      glassMode: "frosted",
+      interfaceLanguage: "en-US",
+      timestampFormat: "12-hour",
+    };
+    const decoded = decodeClientSettings(document);
+    expect(decoded.interfaceLanguage).toBe("en");
+    expect(decoded.timestampFormat).toBe("12-hour");
+    expect(encodeClientSettings(decoded)).toMatchObject({ interfaceLanguage: "en" });
+  });
+});
+
 describe("ServerSettings default permissions", () => {
   it("keeps full access for settings saved before a default was configured", () => {
     expect(decodeServerSettings({}).defaultRuntimeMode).toBe("full-access");
