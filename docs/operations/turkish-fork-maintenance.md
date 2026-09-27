@@ -16,9 +16,11 @@ This page is for whoever picks this up next.
 - a locale defines a key English does not
 
 That covers the failure that actually bites: a Turkish string quietly shipping in
-English, or a placeholder that renders `{count}` to the user. `.github/workflows/i18n-catalogs.yml`
-runs that suite on every PR that touches the catalog, plus `knip --exports` so a
-catalog nobody reads is reported.
+English, or a placeholder that renders `{count}` to the user. No extra workflow is
+needed — `ci.yml` already runs `vp run --filter ... test` across every package
+including `@t3tools/shared`, and `knip:check` already covers unused exports. The
+gate exists; it just lives in the suite rather than in a script that could drift
+from it.
 
 ## What the tests do not protect
 
