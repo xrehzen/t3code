@@ -374,8 +374,9 @@ export const trMessages: Partial<Record<MessageKey, string>> = {
   "desktop.menu.actualSize": "Gerçek Boyut",
   "desktop.menu.zoomIn": "Yakınlaştır",
   "desktop.menu.zoomOut": "Uzaklaştır",
-  "desktop.menu.settings": "Ayarlar…",
-  "desktop.menu.checkForUpdates": "Güncellemeleri denetle…",
+  "desktop.menu.settings": "Ayarlar...",
+  "desktop.menu.checkForUpdates": "Güncellemeleri denetle...",
+  "desktop.dialog.ok": "Tamam",
   "desktop.update.upToDate.title": "Güncelsiniz!",
   "desktop.update.upToDate.message": "T3 Code {version} şu anda en yeni sürüm.",
   "desktop.update.checkFailed.title": "Güncelleme denetimi başarısız oldu",
@@ -400,6 +401,7 @@ export const trMessages: Partial<Record<MessageKey, string>> = {
   "desktop.contextMenu.copyImage": "Görseli kopyala",
   "desktop.badge.threadsWithNotifications": "{count} iş parçacığında yeni bildirim var",
   "desktop.preview.title": "Tarayıcı önizlemesi",
+  "desktop.preview.pictureInPictureTitle": "Önizleme · {title}",
   "desktop.snapShot.windowTitle": "T3 Code Anlık Görüntü Animasyonu",
   "desktop.snapShot.capturing": "Yakalanıyor…",
   "desktop.snapShot.shortcutInUse":
@@ -424,16 +426,90 @@ export const trMessages: Partial<Record<MessageKey, string>> = {
     "Devam etmek için paketlenmiş yakalama yardımcısını güncelleyin.",
   "desktop.snapShot.helperReady": "Yakalama hazır. Sırada kısayolunuzu seçmek var.",
   "desktop.snapShot.checkFailed": "Yakalama erişimi denetlenemedi.",
+  "desktop.snapShot.waylandModifierPairUnavailable":
+    "Bu Wayland oturumunda değiştirici çifti kısayolları kullanılamıyor. Başka bir kısayol seçin veya komut paletinden Anlık görüntü al'ı kullanın.",
+  "desktop.snapShot.macScreenRecording":
+    "Sistem Ayarları'ndan Ekran Kaydı'na izin verin, ardından T3 Code'u yeniden başlatın.",
+  "desktop.snapShot.macAccessibility":
+    "Sistem Ayarları'ndan Erişilebilirlik iznine izin verin, ardından T3 Code'u yeniden başlatın.",
+  "desktop.snapShot.macBothPermissions":
+    "Sistem Ayarları'ndan Erişilebilirlik ve Ekran Kaydı izinlerini verin, ardından T3 Code'u yeniden başlatın.",
+  "desktop.snapShot.niriEndpointDisconnected":
+    "Niri yakalama uç noktasının bağlantısı kesildi. T3 Code'u yeniden başlatın.",
+  "desktop.snapShot.niriBindingHint": "Kısayolu Niri yapılandırmanıza eklemek için ayarlayın.",
+  "desktop.snapShot.niriEndpointFailed":
+    "Niri yakalama uç noktası başlatılamadı. Başka bir T3 Code örneği kullanıyor olabilir.",
+  "desktop.snapShot.portalShortcutFailed": "Masaüstünüzün kısayol hizmetine bağlanılamadı.",
+  "desktop.snapShot.openSettings": "Kurulumu tamamlamak için Ayarlar → SnapShots bölümünü açın.",
+  "desktop.snapShot.error.listPending": "Bekleyen anlık görüntüler listelenemedi.",
+  "desktop.snapShot.error.read": "Anlık görüntü okunamadı.",
+  "desktop.snapShot.error.acknowledge": "Anlık görüntü kaldırılamadı.",
+  "desktop.snapShot.error.unsupported": "Anlık görüntüler burada desteklenmiyor.",
+  "desktop.snapShot.error.disabled": "Önce Ayarlar'dan anlık görüntüleri etkinleştirin.",
+  "desktop.snapShot.error.noWindowSelected": "Hiçbir pencere seçilmedi.",
+  "desktop.snapShot.error.windowUnavailable": "Etkin pencere yakalama için kullanılamıyor.",
+  "desktop.snapShot.error.capture": "Etkin pencere yakalanamadı.",
+  "desktop.snapShot.setup.configSession":
+    "Yapılandırma kurulumu bir Niri veya Hyprland oturumu gerektirir.",
+  "desktop.snapShot.setup.previewFailed": "Yakalama kısayolu değişiklikleriniz hazırlanamadı.",
+  "desktop.snapShot.setup.applyFailed": "Yakalama kısayolunuz kaydedilemedi.",
+  "desktop.snapShot.setup.hyprlandSession":
+    "Yardımcı kurulumu, sandbox dışında bir Hyprland Wayland oturumu gerektirir.",
+  "desktop.snapShot.setup.kdeSession":
+    "Yardımcı kurulumu, sandbox dışında bir KDE Plasma Wayland oturumu gerektirir.",
+  "desktop.snapShot.setup.gnomeSession":
+    "Eklenti kurulumu, sandbox dışında bir GNOME Wayland oturumu gerektirir.",
+  "desktop.snapShot.setup.shortcutPermissions": "Kısayol izinleri açılamadı.",
+  "desktop.snapShot.setup.hyprlandFailed": "Hyprland yakalama kurulamadı.",
+  "desktop.snapShot.setup.kdeFailed": "KDE yakalama kurulamadı.",
+  "desktop.snapShot.setup.gnomeFailed": "GNOME eklentisi kurulamadı.",
+  "desktop.snapShot.kde.cacheRegistrationFailed":
+    "KDE yakalama yardımcısını kaydedemedi. KDE'nin servis araçlarının (kbuildsycoca6) kurulu olduğundan emin olun, ardından yardımcıyı yeniden kurun.",
+  "desktop.snapShot.kde.accessDenied":
+    "KDE yakalama erişimi vermedi. Kurulum bölümünden yakalama yardımcısını yeniden kurup tekrar deneyin.",
+  "desktop.snapShot.kde.noResponse":
+    "KDE yakalama yardımcısı yanıt vermedi. Yakalama kurulumunu yeniden açıp erişimi denetleyin.",
+  "desktop.snapShot.kde.helperReady": "KDE yakalama erişimi hazır. Sırada kısayolunuzu seçmek var.",
+  "desktop.snapShot.kde.checkFailed": "KDE yakalama erişimi denetlenemedi.",
+  "desktop.snapShot.kde.notRegularFile":
+    "Yakalama yardımcısı dosyaları sıradan dosya olmalıdır. Tekrar denemeden önce çakışan bağlantıyı kaldırın.",
+  "desktop.snapShot.kde.desktopEntryConflict":
+    "Başka bir masaüstü girdisi yakalama yardımcısının adını kullanıyor. Devam etmeden önce adını değiştirin.",
+  "desktop.snapShot.kde.directoryNotRegular": "Yakalama yardımcısı dizini sıradan bir dizin değil.",
+  "desktop.snapShot.hyprland.installHelper":
+    "Bulunduğunuz pencereyi yakalamak için paketlenmiş yardımcıyı kurun.",
+  "desktop.snapShot.hyprland.helperMissing":
+    "Bu derlemede Hyprland yakalama yardımcısı eksik. T3 Code'u güncelleyin veya yeniden kurun.",
+  "desktop.snapShot.hyprland.checkFailed": "Hyprland yakalama erişimi denetlenemedi.",
+  "desktop.snapShot.hyprland.noResponse":
+    "Hyprland yakalaması yanıt vermedi. Yakalama kurulumunu denetleyip tekrar deneyin.",
+  "desktop.snapShot.hyprland.notRegularFile":
+    "Yakalama yardımcısı bağlantı değil, sıradan bir dosya olmalıdır.",
+  "desktop.snapShot.hyprland.directoryNotLink":
+    "Yakalama yardımcısı dizini bir bağlantı olmamalıdır.",
+  "desktop.snapShot.gnome.notRegularDirectory":
+    "Eklenti kurulumu sıradan bir dizin değil. Bunu GNOME Eklentileri uygulamasından yönetin.",
+  "desktop.snapShot.gnome.newerInstalled":
+    "Daha yeni bir eklenti kurulu. Değiştirmek yerine T3 Code'u güncelleyin.",
+  "desktop.snapShot.gnome.didNotRespond":
+    "GNOME yanıt vermedi. Bir GNOME Wayland oturumunda oturum açıp tekrar deneyin.",
+  "desktop.snapShot.gnome.noSetupInfo": "GNOME kurulum bilgisi döndürmedi.",
+  "desktop.snapShot.gnome.unsupportedShellVersion":
+    "Paketlenmiş eklenti GNOME {versions} sürümlerini destekliyor. Bu oturum GNOME {major} çalıştırıyor.",
+  "desktop.snapShot.gnome.notLoaded":
+    "GNOME eklentiyi yüklememiş. Çıkış yapıp yeniden girin, ardından tekrar deneyin.",
   "desktop.snapShot.gnome.installExtension":
     "Etkin pencereyi seçicisiz yakalamak için paketlenmiş eklentiyi kurun. İndirme veya yönetici parolası gerekmez.",
   "desktop.snapShot.gnome.signOutRequired":
-    "Kuruldu. İşlerinizi kaydedin, GNOME'dan çıkış yapıp yeniden girin; güncelleme ancak böyle yüklenir. Yalnızca T3 Code'u yeniden başlatmak yeterli değildir.",
+    "Kuruldu. İşlerinizi kaydedin, GNOME'dan çıkış yapıp yeniden girin ve eklentiyi etkinleştirmek için buraya dönün. Yalnızca T3 Code'u yeniden başlatmak yeterli değildir.",
   "desktop.snapShot.gome.newerBundled":
     "Bu uygulamayla daha yeni bir eklenti paketlenmiş. Kurun, ardından çıkış yapıp yeniden girerek güncellemeyi yükleyin.",
-  "desktop.snapShot.gnome.extensionsDisabled": "GNOME kullanıcı eklentilerini devre dışı bıraktı.",
+  "desktop.snapShot.gnome.extensionsDisabled":
+    "GNOME kullanıcı eklentilerini devre dışı bıraktı. GNOME Eklentileri uygulamasında Eklentiler'i açın, sonra yeniden denetleyin. T3 Code diğer eklentilerinizi sizin için etkinleştirmez.",
   "desktop.snapShot.gnome.extensionRunning":
     "T3 Code eklentisi çalışıyor. Etkin pencere anlık görüntüleri kullanılabilir.",
-  "desktop.snapShot.gnome.extensionLoadFailed": "GNOME eklentiyi yükleyemedi.",
+  "desktop.snapShot.gnome.extensionLoadFailed":
+    "GNOME eklentiyi yükleyemedi. Ayrıntılar için GNOME Eklentileri'ne bakın veya çıkış yapıp yeniden girin.",
   "desktop.snapShot.gnome.enableExtension":
     "Etkin pencere anlık görüntülerine izin vermek için T3 Code eklentisini etkinleştirin. İstediğiniz zaman buradan devre dışı bırakabilirsiniz.",
   "desktop.snapShot.gnome.checkFailed": "GNOME eklenti kurulumu denetlenemedi.",
@@ -459,14 +535,17 @@ export const trMessages: Partial<Record<MessageKey, string>> = {
   "desktop.environment.customHttps": "Özel HTTPS",
   "desktop.environment.customEndpoint": "Özel uç nokta",
   "desktop.environment.customHttpsDescription":
-    "Kullanıcı tarafından yapılandırılmış HTTPS uç noktası…",
-  "desktop.environment.customEndpointDescription": "Kullanıcı tarafından yapılandırılmış uç nokta…",
+    "Bu masaüstü arka ucu için kullanıcı tarafından yapılandırılmış HTTPS uç noktası.",
+  "desktop.environment.customEndpointDescription":
+    "Bu masaüstü arka ucu için kullanıcı tarafından yapılandırılmış uç nokta.",
   "desktop.environment.tailscale": "Tailscale",
   "desktop.environment.tailscaleIp": "Tailscale IP",
   "desktop.environment.tailscaleIpDescription": "Aynı Tailnet içindeki cihazlardan erişilebilir.",
   "desktop.environment.tailscaleHttps": "Tailscale HTTPS",
   "desktop.environment.tailscaleHttpsDescription":
     "Tailscale Serve tarafından sunulan HTTPS uç noktası.",
+  "desktop.environment.tailscaleMagicDnsDescription":
+    "MagicDNS ana makine adı. HTTPS erişimi için Tailscale Serve'yi yapılandırın.",
   "desktop.environment.desktopDeviceLabel": "T3 Code Masaüstü",
 
   "picker.images": "Görseller",

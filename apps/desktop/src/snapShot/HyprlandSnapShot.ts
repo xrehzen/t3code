@@ -6,6 +6,7 @@ import * as NodePath from "node:path";
 import * as NodeURL from "node:url";
 import * as Schema from "effect/Schema";
 import type { DesktopCaptureHelperState } from "@t3tools/contracts";
+import { i18n } from "@t3tools/shared/i18n";
 import type { LinuxWindowSnapshot } from "./LinuxSnapShot.ts";
 import { readPortalPng } from "./linuxCaptureSession.ts";
 import { startNativeCaptureFeedback } from "./NativeCaptureFeedback.ts";
@@ -54,12 +55,7 @@ function run(executable: string, args: string[], signal?: AbortSignal): Promise<
       { timeout: 20_000, maxBuffer: 128 * 1024, encoding: "utf8", ...(signal ? { signal } : {}) },
       (error, stdout, stderr) => {
         if (error)
-          reject(
-            new Error(
-              stderr.trim() ||
-                "Hyprland capture did not respond. Check capture setup and try again.",
-            ),
-          );
+          reject(new Error(stderr.trim() || i18n.t("desktop.snapShot.hyprland.noResponse")));
         else resolve(stdout);
       },
     );
@@ -72,7 +68,7 @@ async function regularFile(path: string): Promise<Buffer | undefined> {
   });
   if (!stat) return undefined;
   if (!stat.isFile() || stat.isSymbolicLink())
-    throw new Error("The capture helper must be a regular file, not a link.");
+    throw new Error(i18n.t("desktop.snapShot.hyprland.notRegularFile"));
   return NodeFSP.readFile(path);
 }
 const decodeCapabilities = Schema.decodeUnknownSync(
@@ -90,28 +86,25 @@ export class HyprlandCaptureSetup {
       if (!installed)
         return {
           status: "not-installed",
-          message: "Install the bundled helper to capture the window you're using.",
+          message: i18n.t("desktop.snapShot.hyprland.installHelper"),
         };
       const bundle = await regularFile(this.paths.bundle);
-      if (!bundle)
-        throw new Error(
-          "The Hyprland capture helper is missing from this build. Update or reinstall T3 Code.",
-        );
+      if (!bundle) throw new Error(i18n.t("desktop.snapShot.hyprland.helperMissing"));
       if (!installed.equals(bundle))
         return {
           status: "update-required",
-          message: "Update the bundled capture helper to continue.",
+          message: i18n.t("desktop.snapShot.updateHelper"),
         };
       return {
         status: "ready",
-        message:
-          "Helper ready. Hyprland may ask for screen-sharing permission on your first capture.",
+        message: i18n.t("desktop.snapShot.hyprland.permissions"),
         ...decodeCapabilities(await run(hyprlandCaptureExecutable(this.paths), ["check"])),
       };
     } catch (error) {
       return {
         status: "error",
-        message: error instanceof Error ? error.message : "Couldn't check Hyprland capture access.",
+        message:
+          error instanceof Error ? error.message : i18n.t("desktop.snapShot.hyprland.checkFailed"),
       };
     }
   }
@@ -123,14 +116,14 @@ export class HyprlandCaptureSetup {
       return undefined;
     });
     if (stat && (!stat.isDirectory() || stat.isSymbolicLink()))
-      throw new Error("The capture helper directory must not be a link.");
+      throw new Error(i18n.t("desktop.snapShot.hyprland.directoryNotLink"));
     await regularFile(executable);
     if (action === "remove-hyprland-helper") {
       await NodeFSP.rm(executable, { force: true });
       return;
     }
     const bundle = await regularFile(this.paths.bundle);
-    if (!bundle) throw new Error("The Hyprland capture helper is missing from this build.");
+    if (!bundle) throw new Error(i18n.t("desktop.snapShot.hyprland.helperMissing"));
     await NodeFSP.mkdir(directory, { recursive: true });
     const staging = await NodeFSP.mkdtemp(NodePath.join(directory, ".install-"));
     try {
@@ -168,7 +161,7 @@ export async function captureHyprlandWindow(
 ): Promise<LinuxWindowSnapshot> {
   const state = await new HyprlandCaptureSetup(paths).state();
   if (state.status !== "ready")
-    throw new Error(`${state.message} Open Settings → SnapShots to continue setup.`);
+    throw new Error(`${state.message} ${i18n.t("desktop.snapShot.openSettings")}`);
   const executable = hyprlandCaptureExecutable(paths);
   const directory = await NodeFSP.mkdtemp(NodePath.join(NodeOS.tmpdir(), "t3-hyprland-capture-"));
   const cleanup = () => NodeFSP.rm(directory, { recursive: true, force: true });

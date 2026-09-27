@@ -4,6 +4,8 @@ import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Schema from "effect/Schema";
 
+import { i18n } from "@t3tools/shared/i18n";
+
 import type * as Electron from "electron";
 
 import { makeComponentLogger } from "../app/DesktopObservability.ts";
@@ -67,17 +69,17 @@ const checkForUpdatesFromMenu = Effect.gen(function* () {
   if (updateState.status === "up-to-date") {
     yield* electronDialog.showMessageBox({
       type: "info",
-      title: "You're up to date!",
-      message: `T3 Code ${updateState.currentVersion} is currently the newest version available.`,
-      buttons: ["OK"],
+      title: i18n.t("desktop.update.upToDate.title"),
+      message: i18n.t("desktop.update.upToDate.message", { version: updateState.currentVersion }),
+      buttons: [i18n.t("desktop.dialog.ok")],
     });
   } else if (updateState.status === "error") {
     yield* electronDialog.showMessageBox({
       type: "warning",
-      title: "Update check failed",
-      message: "Could not check for updates.",
-      detail: updateState.message ?? "An unknown error occurred. Please try again later.",
-      buttons: ["OK"],
+      title: i18n.t("desktop.update.checkFailed.title"),
+      message: i18n.t("desktop.update.checkFailed.message"),
+      detail: updateState.message ?? i18n.t("desktop.update.checkFailed.detail"),
+      buttons: [i18n.t("desktop.dialog.ok")],
     });
   }
 }).pipe(Effect.withSpan("desktop.menu.checkForUpdates"));
@@ -92,10 +94,10 @@ const handleCheckForUpdatesMenuClick = Effect.gen(function* () {
     });
     yield* electronDialog.showMessageBox({
       type: "info",
-      title: "Updates unavailable",
-      message: "Automatic updates are not available right now.",
+      title: i18n.t("desktop.update.unavailable.title"),
+      message: i18n.t("desktop.update.unavailable.message"),
       detail: disabledReason.value,
-      buttons: ["OK"],
+      buttons: [i18n.t("desktop.dialog.ok")],
     });
     return;
   }
@@ -161,12 +163,12 @@ export const make = Effect.gen(function* () {
         submenu: [
           { role: "about" },
           {
-            label: "Check for Updates...",
+            label: i18n.t("desktop.menu.checkForUpdates"),
             click: checkForUpdatesClick,
           },
           { type: "separator" },
           {
-            label: "Settings...",
+            label: i18n.t("desktop.menu.settings"),
             accelerator: "CmdOrCtrl+,",
             click: settingsClick,
           },
@@ -184,13 +186,13 @@ export const make = Effect.gen(function* () {
 
     template.push(
       {
-        label: "File",
+        label: i18n.t("desktop.menu.file"),
         submenu: [
           ...(environment.platform === "darwin"
             ? []
             : [
                 {
-                  label: "Settings...",
+                  label: i18n.t("desktop.menu.settings"),
                   accelerator: "CmdOrCtrl+,",
                   click: settingsClick,
                 },
@@ -200,7 +202,7 @@ export const make = Effect.gen(function* () {
         ],
       },
       {
-        label: "Edit",
+        label: i18n.t("desktop.menu.edit"),
         submenu: [
           { role: "undo" },
           { role: "redo" },
@@ -209,7 +211,7 @@ export const make = Effect.gen(function* () {
           { role: "copy" },
           { role: "paste" },
           {
-            label: "Paste as Text",
+            label: i18n.t("desktop.menu.pasteAsText"),
             accelerator: "CmdOrCtrl+Shift+V",
             click: pasteAsTextClick,
           },
@@ -220,7 +222,7 @@ export const make = Effect.gen(function* () {
             ? [
                 { type: "separator" as const },
                 {
-                  label: "Speech",
+                  label: i18n.t("desktop.menu.speech"),
                   submenu: [{ role: "startSpeaking" as const }, { role: "stopSpeaking" as const }],
                 },
               ]
@@ -228,7 +230,7 @@ export const make = Effect.gen(function* () {
         ],
       },
       {
-        label: "View",
+        label: i18n.t("desktop.menu.view"),
         submenu: [
           { role: "reload" },
           { role: "forceReload" },
@@ -240,15 +242,27 @@ export const make = Effect.gen(function* () {
             page and the app UI appears stuck. These always zoom the main
             window (see DesktopWindow.zoomMain).
           */
-          { label: "Actual Size", accelerator: "CmdOrCtrl+0", click: zoomClick("reset") },
-          { label: "Zoom In", accelerator: "CmdOrCtrl+=", click: zoomClick("in") },
           {
-            label: "Zoom In",
+            label: i18n.t("desktop.menu.actualSize"),
+            accelerator: "CmdOrCtrl+0",
+            click: zoomClick("reset"),
+          },
+          {
+            label: i18n.t("desktop.menu.zoomIn"),
+            accelerator: "CmdOrCtrl+=",
+            click: zoomClick("in"),
+          },
+          {
+            label: i18n.t("desktop.menu.zoomIn"),
             accelerator: "CmdOrCtrl+Plus",
             visible: false,
             click: zoomClick("in"),
           },
-          { label: "Zoom Out", accelerator: "CmdOrCtrl+-", click: zoomClick("out") },
+          {
+            label: i18n.t("desktop.menu.zoomOut"),
+            accelerator: "CmdOrCtrl+-",
+            click: zoomClick("out"),
+          },
           { type: "separator" },
           { role: "togglefullscreen" },
         ],
@@ -258,7 +272,7 @@ export const make = Effect.gen(function* () {
         role: "help",
         submenu: [
           {
-            label: "Check for Updates...",
+            label: i18n.t("desktop.menu.checkForUpdates"),
             click: checkForUpdatesClick,
           },
         ],

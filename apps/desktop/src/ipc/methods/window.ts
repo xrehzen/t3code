@@ -16,6 +16,7 @@ import {
 import { WORKSPACE_IMAGE_PREVIEW_EXTENSIONS } from "@t3tools/shared/filePreview";
 import { resolveEditorCommand } from "@t3tools/shared/editor";
 import * as HostProcess from "@t3tools/shared/hostProcess";
+import { i18n } from "@t3tools/shared/i18n";
 import * as NodeOS from "node:os";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
@@ -261,7 +262,7 @@ export const pickProjectFavicon = DesktopIpc.makeIpcMethod({
       multiple: false,
       filters: [
         {
-          name: "Images",
+          name: i18n.t("picker.images"),
           extensions: WORKSPACE_IMAGE_PREVIEW_EXTENSIONS.map((extension) => extension.slice(1)),
         },
       ],
@@ -396,7 +397,7 @@ export const pickThemeFiles = DesktopIpc.makeIpcMethod({
     const paths = yield* dialog.pickFiles({
       owner: yield* electronWindow.focusedMainOrFirst,
       defaultPath: defaultPath ? Option.some(extensionsDir) : Option.none(),
-      filters: [{ name: "JSON", extensions: ["json"] }],
+      filters: [{ name: i18n.t("picker.json"), extensions: ["json"] }],
       multiple: true,
     });
     if (paths.length === 0) {

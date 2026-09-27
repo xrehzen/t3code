@@ -6,6 +6,7 @@ import * as Ref from "effect/Ref";
 import * as Schema from "effect/Schema";
 
 import * as NetService from "@t3tools/shared/Net";
+import { i18n } from "@t3tools/shared/i18n";
 import * as Crypto from "effect/Crypto";
 import * as ElectronApp from "../electron/ElectronApp.ts";
 import * as ElectronDialog from "../electron/ElectronDialog.ts";
@@ -15,6 +16,9 @@ import { installDesktopIpcHandlers } from "../ipc/DesktopIpcHandlers.ts";
 import * as DesktopAppActivation from "./DesktopAppActivation.ts";
 import * as DesktopAppIdentity from "./DesktopAppIdentity.ts";
 import * as DesktopClerk from "./DesktopClerk.ts";
+import { DEFAULT_INTERFACE_LANGUAGE } from "@t3tools/contracts/settings";
+import * as DesktopClientSettings from "../settings/DesktopClientSettings.ts";
+import { applyInterfaceLanguage } from "../settings/DesktopInterfaceLanguage.ts";
 import * as DesktopApplicationMenu from "../window/DesktopApplicationMenu.ts";
 import * as DesktopWindow from "../window/DesktopWindow.ts";
 import * as DesktopBackendPool from "../backend/DesktopBackendPool.ts";
@@ -132,8 +136,8 @@ const handleFatalStartupError = Effect.fn("desktop.startup.handleFatalStartupErr
   const wasQuitting = yield* Ref.getAndSet(state.quitting, true);
   if (!wasQuitting) {
     yield* electronDialog.showErrorBox(
-      "T3 Code failed to start",
-      `Stage: ${stage}\n${message}${detail}`,
+      i18n.t("desktop.startup.failedTitle"),
+      i18n.t("desktop.startup.failedDetail", { stage, message, detail }),
     );
   }
   yield* shutdown.request;
@@ -267,9 +271,19 @@ const startup = Effect.gen(function* () {
   const shellEnvironment = yield* DesktopShellEnvironment.DesktopShellEnvironment;
   const desktopSettings = yield* DesktopAppSettings.DesktopAppSettings;
   const preReadyElectronOptions = yield* DesktopPreReadyPlatform.DesktopPreReadyElectronOptions;
+  const clientSettings = yield* DesktopClientSettings.DesktopClientSettings;
   const safeStorage = yield* ElectronSafeStorage.ElectronSafeStorage;
   const updates = yield* DesktopUpdates.DesktopUpdates;
   const environment = yield* DesktopEnvironment.DesktopEnvironment;
+
+  // Before anything reads the catalog: the native menu labels, the update
+  // dialogs and the SnapShot messages are all built from it.
+  const systemLocale = yield* electronApp.systemLocale;
+  const persistedClientSettings = Option.getOrNull(yield* clientSettings.get);
+  applyInterfaceLanguage(
+    persistedClientSettings?.interfaceLanguage ?? DEFAULT_INTERFACE_LANGUAGE,
+    systemLocale,
+  );
 
   yield* shellEnvironment.installIntoProcess;
   const hasCommandLinePasswordStore =

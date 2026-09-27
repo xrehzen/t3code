@@ -10,6 +10,7 @@ import {
   type DesktopServerExposureState,
 } from "@t3tools/contracts";
 import { isTailscaleIpv4Address, readTailscaleStatus } from "@t3tools/tailscale";
+import { i18n } from "@t3tools/shared/i18n";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -45,19 +46,19 @@ interface DesktopAdvertisedEndpointInput {
   readonly customHttpsEndpointUrls?: readonly string[];
 }
 
-const DESKTOP_CORE_ENDPOINT_PROVIDER: AdvertisedEndpointProvider = {
+const DESKTOP_CORE_ENDPOINT_PROVIDER = (): AdvertisedEndpointProvider => ({
   id: "desktop-core",
-  label: "Desktop",
+  label: i18n.t("desktop.environment.desktop"),
   kind: "core",
   isAddon: false,
-};
+});
 
-const DESKTOP_MANUAL_ENDPOINT_PROVIDER: AdvertisedEndpointProvider = {
+const DESKTOP_MANUAL_ENDPOINT_PROVIDER = (): AdvertisedEndpointProvider => ({
   id: "manual",
-  label: "Manual",
+  label: i18n.t("desktop.environment.manual"),
   kind: "manual",
   isAddon: false,
-};
+});
 
 const normalizeOptionalHost = (value: string | undefined): string | undefined => {
   const normalized = value?.trim();
@@ -140,7 +141,7 @@ const createDesktopEndpoint = (
 ): AdvertisedEndpoint =>
   createAdvertisedEndpoint({
     ...input,
-    provider: DESKTOP_CORE_ENDPOINT_PROVIDER,
+    provider: DESKTOP_CORE_ENDPOINT_PROVIDER(),
     source: "desktop-core",
   });
 
@@ -149,7 +150,7 @@ const createManualEndpoint = (
 ): AdvertisedEndpoint =>
   createAdvertisedEndpoint({
     ...input,
-    provider: DESKTOP_MANUAL_ENDPOINT_PROVIDER,
+    provider: DESKTOP_MANUAL_ENDPOINT_PROVIDER(),
     source: "user",
   });
 
@@ -159,11 +160,11 @@ const resolveDesktopCoreAdvertisedEndpoints = (
   const endpoints: AdvertisedEndpoint[] = [
     createDesktopEndpoint({
       id: `desktop-loopback:${input.port}`,
-      label: "This machine",
+      label: i18n.t("desktop.environment.thisMachine"),
       httpBaseUrl: input.exposure.localHttpUrl,
       reachability: "loopback",
       status: "available",
-      description: "Loopback endpoint for this desktop app.",
+      description: i18n.t("desktop.environment.thisMachineDescription"),
     }),
   ];
 
@@ -171,12 +172,12 @@ const resolveDesktopCoreAdvertisedEndpoints = (
     endpoints.push(
       createDesktopEndpoint({
         id: `desktop-lan:${input.exposure.endpointUrl}`,
-        label: "Local network",
+        label: i18n.t("desktop.environment.localNetwork"),
         httpBaseUrl: input.exposure.endpointUrl,
         reachability: "lan",
         status: "available",
         isDefault: true,
-        description: "Reachable from devices on the same network.",
+        description: i18n.t("desktop.environment.localNetworkDescription"),
       }),
     );
   }
@@ -187,14 +188,16 @@ const resolveDesktopCoreAdvertisedEndpoints = (
       endpoints.push(
         createManualEndpoint({
           id: `manual:${customEndpointUrl}`,
-          label: isHttpsEndpoint ? "Custom HTTPS" : "Custom endpoint",
+          label: isHttpsEndpoint
+            ? i18n.t("desktop.environment.customHttps")
+            : i18n.t("desktop.environment.customEndpoint"),
           httpBaseUrl: customEndpointUrl,
           reachability: "public",
           ...(isHttpsEndpoint ? ({ hostedHttpsCompatibility: "compatible" } as const) : {}),
           status: "unknown",
           description: isHttpsEndpoint
-            ? "User-configured HTTPS endpoint for this desktop backend."
-            : "User-configured endpoint for this desktop backend.",
+            ? i18n.t("desktop.environment.customHttpsDescription")
+            : i18n.t("desktop.environment.customEndpointDescription"),
         }),
       );
     } catch {

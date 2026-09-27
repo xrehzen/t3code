@@ -364,8 +364,9 @@ export const enMessages = {
   "desktop.menu.actualSize": "Actual Size",
   "desktop.menu.zoomIn": "Zoom In",
   "desktop.menu.zoomOut": "Zoom Out",
-  "desktop.menu.settings": "Settings…",
-  "desktop.menu.checkForUpdates": "Check for Updates…",
+  "desktop.menu.settings": "Settings...",
+  "desktop.menu.checkForUpdates": "Check for Updates...",
+  "desktop.dialog.ok": "OK",
   "desktop.update.upToDate.title": "You're up to date!",
   "desktop.update.upToDate.message": "T3 Code {version} is currently the newest version available.",
   "desktop.update.checkFailed.title": "Update check failed",
@@ -389,6 +390,7 @@ export const enMessages = {
   "desktop.contextMenu.copyImage": "Copy Image",
   "desktop.badge.threadsWithNotifications": "{count} threads with new notifications",
   "desktop.preview.title": "Browser preview",
+  "desktop.preview.pictureInPictureTitle": "Preview · {title}",
   "desktop.snapShot.windowTitle": "T3 Code Snapshot Animation",
   "desktop.snapShot.capturing": "Capturing…",
   "desktop.snapShot.shortcutInUse": "This shortcut is already used by the system or another app.",
@@ -412,16 +414,89 @@ export const enMessages = {
   "desktop.snapShot.updateHelper": "Update the bundled capture helper to continue.",
   "desktop.snapShot.helperReady": "Capture is ready. Next, choose your shortcut.",
   "desktop.snapShot.checkFailed": "Couldn't check capture access.",
+  "desktop.snapShot.waylandModifierPairUnavailable":
+    "Modifier-pair shortcuts aren't available in this Wayland session. Choose another shortcut or use Take snapshot from the command palette.",
+  "desktop.snapShot.macScreenRecording":
+    "Allow Screen Recording in System Settings, then restart T3 Code.",
+  "desktop.snapShot.macAccessibility":
+    "Allow Accessibility in System Settings, then restart T3 Code.",
+  "desktop.snapShot.macBothPermissions":
+    "Allow Accessibility and Screen Recording in System Settings, then restart T3 Code.",
+  "desktop.snapShot.niriEndpointDisconnected":
+    "The Niri capture endpoint disconnected. Restart T3 Code.",
+  "desktop.snapShot.niriBindingHint": "Set up the shortcut to add it to your Niri config.",
+  "desktop.snapShot.niriEndpointFailed":
+    "Could not start the Niri capture endpoint. Another T3 Code instance may be using it.",
+  "desktop.snapShot.portalShortcutFailed": "Could not connect to your desktop's shortcut service.",
+  "desktop.snapShot.openSettings": "Open Settings → SnapShots to continue setup.",
+  "desktop.snapShot.error.listPending": "Could not list pending snapshots.",
+  "desktop.snapShot.error.read": "Could not read the snapshot.",
+  "desktop.snapShot.error.acknowledge": "Could not remove the snapshot.",
+  "desktop.snapShot.error.unsupported": "SnapShots are not supported here.",
+  "desktop.snapShot.error.disabled": "Enable SnapShots in Settings first.",
+  "desktop.snapShot.error.noWindowSelected": "No window was selected.",
+  "desktop.snapShot.error.windowUnavailable": "The active window is not available for capture.",
+  "desktop.snapShot.error.capture": "Could not capture the active window.",
+  "desktop.snapShot.setup.configSession": "Config setup requires a Niri or Hyprland session.",
+  "desktop.snapShot.setup.previewFailed": "Couldn't prepare your capture shortcut changes.",
+  "desktop.snapShot.setup.applyFailed": "Couldn't save your capture shortcut.",
+  "desktop.snapShot.setup.hyprlandSession":
+    "Helper setup requires a Hyprland Wayland session outside a sandbox.",
+  "desktop.snapShot.setup.kdeSession":
+    "Helper setup requires a KDE Plasma Wayland session outside a sandbox.",
+  "desktop.snapShot.setup.gnomeSession":
+    "Extension setup requires a GNOME Wayland session outside a sandbox.",
+  "desktop.snapShot.setup.shortcutPermissions": "Could not open shortcut permissions.",
+  "desktop.snapShot.setup.hyprlandFailed": "Could not set up Hyprland capture.",
+  "desktop.snapShot.setup.kdeFailed": "Could not set up KDE capture.",
+  "desktop.snapShot.setup.gnomeFailed": "Could not set up the GNOME extension.",
+  "desktop.snapShot.kde.cacheRegistrationFailed":
+    "KDE couldn't register the capture helper. Make sure KDE's service tools (kbuildsycoca6) are installed, then reinstall the helper.",
+  "desktop.snapShot.kde.accessDenied":
+    "KDE hasn't granted capture access. Reinstall the capture helper in setup, then try again.",
+  "desktop.snapShot.kde.noResponse":
+    "The KDE capture helper did not respond. Reopen capture setup and check access.",
+  "desktop.snapShot.kde.helperReady": "KDE capture access is ready. Next, choose your shortcut.",
+  "desktop.snapShot.kde.checkFailed": "Couldn't check KDE capture access.",
+  "desktop.snapShot.kde.notRegularFile":
+    "Capture helper files must be regular files. Remove the conflicting link before trying again.",
+  "desktop.snapShot.kde.desktopEntryConflict":
+    "Another desktop entry uses the capture helper's name. Rename it before continuing.",
+  "desktop.snapShot.kde.directoryNotRegular":
+    "The capture helper directory is not a regular directory.",
+  "desktop.snapShot.hyprland.installHelper":
+    "Install the bundled helper to capture the window you're using.",
+  "desktop.snapShot.hyprland.helperMissing":
+    "The Hyprland capture helper is missing from this build. Update or reinstall T3 Code.",
+  "desktop.snapShot.hyprland.checkFailed": "Couldn't check Hyprland capture access.",
+  "desktop.snapShot.hyprland.noResponse":
+    "Hyprland capture did not respond. Check capture setup and try again.",
+  "desktop.snapShot.hyprland.notRegularFile":
+    "The capture helper must be a regular file, not a link.",
+  "desktop.snapShot.hyprland.directoryNotLink": "The capture helper directory must not be a link.",
+  "desktop.snapShot.gnome.notRegularDirectory":
+    "The extension installation is not a regular directory. Manage it in GNOME Extensions instead.",
+  "desktop.snapShot.gnome.newerInstalled":
+    "A newer extension is installed. Update T3 Code instead of replacing it.",
+  "desktop.snapShot.gnome.didNotRespond":
+    "GNOME did not respond. Sign in to a GNOME Wayland session and try again.",
+  "desktop.snapShot.gnome.noSetupInfo": "GNOME returned no setup information.",
+  "desktop.snapShot.gnome.unsupportedShellVersion":
+    "The bundled extension supports GNOME {versions}. This session runs GNOME {major}.",
+  "desktop.snapShot.gnome.notLoaded":
+    "GNOME has not loaded the extension. Sign out and back in, then try again.",
   "desktop.snapShot.gnome.installExtension":
     "Install the bundled extension to capture the active window without a picker. No download or administrator password is needed.",
   "desktop.snapShot.gnome.signOutRequired":
-    "Installed. Save your work, sign out of GNOME and sign back in to load the update. Restarting T3 Code alone is not enough.",
+    "Installed. Save your work, sign out of GNOME and sign back in, then return here to enable the extension. Restarting T3 Code alone is not enough.",
   "desktop.snapShot.gome.newerBundled":
     "A newer extension is bundled with this app. Install it, then sign out and back in to load the update.",
-  "desktop.snapShot.gnome.extensionsDisabled": "GNOME has disabled user extensions.",
+  "desktop.snapShot.gnome.extensionsDisabled":
+    "GNOME has disabled user extensions. Turn on Extensions in the GNOME Extensions app, then check again. T3 Code will not enable your other extensions for you.",
   "desktop.snapShot.gnome.extensionRunning":
     "The T3 Code extension is running. Active-window snapshots are available.",
-  "desktop.snapShot.gnome.extensionLoadFailed": "GNOME could not load the extension.",
+  "desktop.snapShot.gnome.extensionLoadFailed":
+    "GNOME could not load the extension. Check GNOME Extensions for details, or sign out and back in.",
   "desktop.snapShot.gnome.enableExtension":
     "Enable the T3 Code extension to allow active-window snapshots. You can disable it here at any time.",
   "desktop.snapShot.gnome.checkFailed": "Could not check GNOME extension setup.",
@@ -444,13 +519,17 @@ export const enMessages = {
   "desktop.environment.localNetworkDescription": "Reachable from devices on the same network.",
   "desktop.environment.customHttps": "Custom HTTPS",
   "desktop.environment.customEndpoint": "Custom endpoint",
-  "desktop.environment.customHttpsDescription": "User-configured HTTPS endpoint…",
-  "desktop.environment.customEndpointDescription": "User-configured endpoint…",
+  "desktop.environment.customHttpsDescription":
+    "User-configured HTTPS endpoint for this desktop backend.",
+  "desktop.environment.customEndpointDescription":
+    "User-configured endpoint for this desktop backend.",
   "desktop.environment.tailscale": "Tailscale",
   "desktop.environment.tailscaleIp": "Tailscale IP",
   "desktop.environment.tailscaleIpDescription": "Reachable from devices on the same Tailnet.",
   "desktop.environment.tailscaleHttps": "Tailscale HTTPS",
   "desktop.environment.tailscaleHttpsDescription": "HTTPS endpoint served by Tailscale Serve.",
+  "desktop.environment.tailscaleMagicDnsDescription":
+    "MagicDNS hostname. Configure Tailscale Serve for HTTPS access.",
   "desktop.environment.desktopDeviceLabel": "T3 Code Desktop",
 
   "picker.images": "Images",

@@ -20,6 +20,7 @@ import {
   type DesktopSnapShotEvent,
   type DesktopSnapShotId,
 } from "@t3tools/contracts";
+import { i18n } from "@t3tools/shared/i18n";
 import * as Clock from "effect/Clock";
 import * as Context from "effect/Context";
 import * as Crypto from "effect/Crypto";
@@ -92,24 +93,23 @@ import {
 const MAX_CAPTURE_WIDTH = 2_560;
 const MAX_CAPTURE_HEIGHT = 1_600;
 const SHORTCUT_COOLDOWN_NS = 200_000_000n;
-const WAYLAND_MODIFIER_PAIR_UNAVAILABLE_MESSAGE =
-  "Modifier-pair shortcuts aren't available in this Wayland session. Choose another shortcut or use Take snapshot from the command palette.";
 const FLASH_ANIMATION_DURATION_MS = 180;
 const FLASH_STATIC_DURATION_MS = 60;
 const FLASH_FRAME_INTERVAL_MS = 16;
 const FLASH_PEAK_OPACITY = 0.08;
 const MAC_SCREEN_CAPTURE_SETTINGS_URL = MAC_PERMISSION_SETTINGS_URLS["screen-recording"];
-const MAC_SCREEN_CAPTURE_PERMISSION_MESSAGE =
-  "Allow Screen Recording in System Settings, then restart T3 Code.";
-const MAC_ACCESSIBILITY_PERMISSION_MESSAGE =
-  "Allow Accessibility in System Settings, then restart T3 Code.";
-const MAC_BOTH_PERMISSIONS_MESSAGE =
-  "Allow Accessibility and Screen Recording in System Settings, then restart T3 Code.";
-const MAC_PERMISSION_MESSAGES = new Set([
-  MAC_SCREEN_CAPTURE_PERMISSION_MESSAGE,
-  MAC_ACCESSIBILITY_PERMISSION_MESSAGE,
-  MAC_BOTH_PERMISSIONS_MESSAGE,
-]);
+
+// Resolved per call rather than cached at module load, so a locale change on the
+// shared catalog cannot leave these messages stuck in the previous language.
+const macScreenCapturePermissionMessage = () => i18n.t("desktop.snapShot.macScreenRecording");
+const macAccessibilityPermissionMessage = () => i18n.t("desktop.snapShot.macAccessibility");
+const macBothPermissionsMessage = () => i18n.t("desktop.snapShot.macBothPermissions");
+const macPermissionMessages = (): ReadonlySet<string> =>
+  new Set([
+    macScreenCapturePermissionMessage(),
+    macAccessibilityPermissionMessage(),
+    macBothPermissionsMessage(),
+  ]);
 
 const decodePendingCapture = Schema.decodeUnknownEffect(DesktopPendingSnapShot);
 
@@ -138,21 +138,21 @@ export class DesktopSnapShotError extends Schema.TaggedError<DesktopSnapShotErro
   override get message(): string {
     switch (this.operation) {
       case "list-pending":
-        return "Could not list pending snapshots.";
+        return i18n.t("desktop.snapShot.error.listPending");
       case "read":
-        return "Could not read the snapshot.";
+        return i18n.t("desktop.snapShot.error.read");
       case "acknowledge":
-        return "Could not remove the snapshot.";
+        return i18n.t("desktop.snapShot.error.acknowledge");
       case "unsupported":
-        return "SnapShots are not supported here.";
+        return i18n.t("desktop.snapShot.error.unsupported");
       case "disabled":
-        return "Enable SnapShots in Settings first.";
+        return i18n.t("desktop.snapShot.error.disabled");
       case "no-window-selected":
-        return "No window was selected.";
+        return i18n.t("desktop.snapShot.error.noWindowSelected");
       case "window-unavailable":
-        return "The active window is not available for capture.";
+        return i18n.t("desktop.snapShot.error.windowUnavailable");
       case "capture":
-        return "Could not capture the active window.";
+        return i18n.t("desktop.snapShot.error.capture");
     }
   }
 }
@@ -216,26 +216,27 @@ export class DesktopSnapShotSetupError extends Schema.TaggedError<DesktopSnapSho
   override get message(): string {
     if (this.action === "preview-config" || this.action === "apply-config") {
       if (this.reason === "unsupported-session")
-        return "Config setup requires a Niri or Hyprland session.";
+        return i18n.t("desktop.snapShot.setup.configSession");
       return this.action === "preview-config"
-        ? "Couldn't prepare your capture shortcut changes."
-        : "Couldn't save your capture shortcut.";
+        ? i18n.t("desktop.snapShot.setup.previewFailed")
+        : i18n.t("desktop.snapShot.setup.applyFailed");
     }
     const kde = this.action === "install-kde-helper" || this.action === "remove-kde-helper";
     const hyprland =
       this.action === "install-hyprland-helper" || this.action === "remove-hyprland-helper";
     if (this.reason === "unsupported-session")
       return hyprland
-        ? "Helper setup requires a Hyprland Wayland session outside a sandbox."
+        ? i18n.t("desktop.snapShot.setup.hyprlandSession")
         : kde
-          ? "Helper setup requires a KDE Plasma Wayland session outside a sandbox."
-          : "Extension setup requires a GNOME Wayland session outside a sandbox.";
-    if (this.reason === "shortcut-permissions") return "Could not open shortcut permissions.";
+          ? i18n.t("desktop.snapShot.setup.kdeSession")
+          : i18n.t("desktop.snapShot.setup.gnomeSession");
+    if (this.reason === "shortcut-permissions")
+      return i18n.t("desktop.snapShot.setup.shortcutPermissions");
     return hyprland
-      ? "Could not set up Hyprland capture."
+      ? i18n.t("desktop.snapShot.setup.hyprlandFailed")
       : kde
-        ? "Could not set up KDE capture."
-        : "Could not set up the GNOME extension.";
+        ? i18n.t("desktop.snapShot.setup.kdeFailed")
+        : i18n.t("desktop.snapShot.setup.gnomeFailed");
   }
 }
 
@@ -328,7 +329,7 @@ async function requestMacScreenCapturePermission(): Promise<string | null> {
     }
   } catch {}
   await Electron.shell.openExternal(MAC_SCREEN_CAPTURE_SETTINGS_URL).catch(() => undefined);
-  return MAC_SCREEN_CAPTURE_PERMISSION_MESSAGE;
+  return macScreenCapturePermissionMessage();
 }
 
 function currentMacPermissions(): NonNullable<DesktopSnapShotState["macPermissions"]> {
@@ -344,12 +345,12 @@ function macPermissionMessage(
 ): string | null {
   const accessibilityGranted = !includeAccessibility || permissions.accessibility;
   if (!accessibilityGranted && !permissions.screenRecording) {
-    return MAC_BOTH_PERMISSIONS_MESSAGE;
+    return macBothPermissionsMessage();
   }
   if (!accessibilityGranted) {
-    return MAC_ACCESSIBILITY_PERMISSION_MESSAGE;
+    return macAccessibilityPermissionMessage();
   }
-  return permissions.screenRecording ? null : MAC_SCREEN_CAPTURE_PERMISSION_MESSAGE;
+  return permissions.screenRecording ? null : macScreenCapturePermissionMessage();
 }
 
 function currentMacSnapShotPermissionMessage(includeAccessibility: boolean): string | null {
@@ -370,10 +371,10 @@ async function requestMacSnapShotPermissions(
     !includeAccessibility || Electron.systemPreferences.isTrustedAccessibilityClient(true);
   const screenMessage = await requestMacScreenCapturePermission();
   if (!accessibilityGranted && screenMessage) {
-    return MAC_BOTH_PERMISSIONS_MESSAGE;
+    return macBothPermissionsMessage();
   }
   if (!accessibilityGranted) {
-    return MAC_ACCESSIBILITY_PERMISSION_MESSAGE;
+    return macAccessibilityPermissionMessage();
   }
   return screenMessage;
 }
@@ -693,13 +694,13 @@ function probeGlobalShortcut(accelerator: string): DesktopSnapShotShortcutAvaila
     if (!Electron.globalShortcut.register(accelerator, () => undefined)) {
       return {
         available: false,
-        message: "This shortcut is already used by the system or another app.",
+        message: i18n.t("desktop.snapShot.shortcutInUse"),
       };
     }
     Electron.globalShortcut.unregister(accelerator);
     return { available: true, message: null };
   } catch {
-    return { available: false, message: "The system could not register this shortcut." };
+    return { available: false, message: i18n.t("desktop.snapShot.shortcutRegistrationFailed") };
   }
 }
 
@@ -1011,23 +1012,26 @@ export const make = Effect.gen(function* () {
   ) {
     const mode = captureMode(environment.platform);
     if (mode === "unavailable") {
-      return { available: false, message: "SnapShots are not supported on this platform." };
+      return { available: false, message: i18n.t("desktop.snapShot.unsupportedPlatform") };
     }
     if (mode === "portal" && niriSocketPath()) {
       return {
         available: false,
-        message: "Configure the capture shortcut in your Niri config, not in T3 Code.",
+        message: i18n.t("desktop.snapShot.configureNiri"),
       };
     }
     if (mode === "portal" && isHyprlandCaptureSession()) {
       return {
         available: false,
-        message: "Change the capture binding in your Hyprland config, then save it.",
+        message: i18n.t("desktop.snapShot.configureHyprland"),
       };
     }
     if (isModifierPairShortcut(shortcut)) {
       if (mode === "portal") {
-        return { available: false, message: WAYLAND_MODIFIER_PAIR_UNAVAILABLE_MESSAGE };
+        return {
+          available: false,
+          message: i18n.t("desktop.snapShot.waylandModifierPairUnavailable"),
+        };
       }
       const available = yield* Effect.tryPromise(() =>
         startPairShortcutProcess(
@@ -1054,11 +1058,14 @@ export const make = Effect.gen(function* () {
         Effect.match({
           onSuccess: () => ({
             available: true,
-            message: "Your desktop will confirm this shortcut when you save it.",
+            message: i18n.t("desktop.snapShot.desktopWillConfirm"),
           }),
           onFailure: (error) => ({
             available: false,
-            message: error.cause instanceof Error ? error.cause.message : "Unsupported shortcut.",
+            message:
+              error.cause instanceof Error
+                ? error.cause.message
+                : i18n.t("desktop.snapShot.unsupportedShortcut"),
           }),
         }),
       );
@@ -1139,8 +1146,8 @@ export const make = Effect.gen(function* () {
         message:
           mode === "unavailable"
             ? environment.platform === "linux"
-              ? "SnapShots require a Wayland session. X11 capture is not supported."
-              : "SnapShots are not supported on this platform."
+              ? i18n.t("desktop.snapShot.requiresWayland")
+              : i18n.t("desktop.snapShot.unsupportedPlatform")
             : null,
       });
       return;
@@ -1166,7 +1173,7 @@ export const make = Effect.gen(function* () {
         const { startNiriCaptureShortcut } = await import("./NiriCaptureShortcut.ts");
         return startNiriCaptureShortcut(linuxAppId, onCurrentShortcut, () => {
           void runPromise(
-            setShortcutFailure("The Niri capture endpoint disconnected. Restart T3 Code."),
+            setShortcutFailure(i18n.t("desktop.snapShot.niriEndpointDisconnected")),
           ).catch(() => undefined);
         });
       }).pipe(
@@ -1187,8 +1194,8 @@ export const make = Effect.gen(function* () {
         shortcutConfigPath: niriCaptureConfigPath(),
         shortcutActionRegistered: registered,
         shortcutMessage: registered
-          ? "Set up the shortcut to add it to your Niri config."
-          : "Could not start the Niri capture endpoint. Another T3 Code instance may be using it.",
+          ? i18n.t("desktop.snapShot.niriBindingHint")
+          : i18n.t("desktop.snapShot.niriEndpointFailed"),
         message: null,
       });
       return;
@@ -1199,7 +1206,7 @@ export const make = Effect.gen(function* () {
         mode,
         shortcut,
         shortcutRegistered: false,
-        shortcutMessage: WAYLAND_MODIFIER_PAIR_UNAVAILABLE_MESSAGE,
+        shortcutMessage: i18n.t("desktop.snapShot.waylandModifierPairUnavailable"),
         message: null,
       });
       return;
@@ -1247,7 +1254,7 @@ export const make = Effect.gen(function* () {
             shortcutMessage:
               error.cause instanceof Error
                 ? error.cause.message
-                : "Could not connect to your desktop's shortcut service.",
+                : i18n.t("desktop.snapShot.portalShortcutFailed"),
           })),
         ),
       );
@@ -1532,7 +1539,7 @@ export const make = Effect.gen(function* () {
                   message:
                     error.cause instanceof Error
                       ? error.cause.message
-                      : "Could not check desktop capture support. Check your desktop session and try again.",
+                      : i18n.t("desktop.snapShot.supportCheckFailed"),
                 }),
               ),
             )
@@ -1549,7 +1556,7 @@ export const make = Effect.gen(function* () {
                 const recovered =
                   message === null &&
                   state.message !== null &&
-                  MAC_PERMISSION_MESSAGES.has(state.message)
+                  macPermissionMessages().has(state.message)
                     ? yield* configurationMutex
                         .withPermits(1)(applySettings(settings, null, true))
                         .pipe(Effect.andThen(Ref.get(stateRef)))

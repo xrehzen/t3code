@@ -1132,9 +1132,9 @@ export interface DesktopBridge {
   onTrackpadScrollEnd?: (listener: () => void) => () => void;
   /**
    * The OS locale as a BCP-47 tag, which the renderer cannot read for itself:
-   * the packaged app ships only the `en-US` Chromium locale pak, so
-   * `navigator.language` and the default `Intl` locale are pinned to `en-US`
-   * regardless of OS settings.
+   * the packaged app only ships the `en-US` and `tr` Chromium locale paks, so
+   * on any other system `navigator.language` and the default `Intl` locale
+   * fall back to `en-US` regardless of OS settings.
    */
   getSystemLocale?: () => string | null;
   // One bootstrap per pool instance currently registered with bootstrap

@@ -7,6 +7,7 @@ import {
   probeTailscaleHttpsEndpoint,
   readTailscaleStatus,
 } from "@t3tools/tailscale";
+import { i18n } from "@t3tools/shared/i18n";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import * as HttpClient from "effect/unstable/http/HttpClient";
@@ -16,12 +17,12 @@ import type { NetworkInterfaces } from "./DesktopNetworkInterfaces.ts";
 
 export { parseTailscaleMagicDnsName } from "@t3tools/tailscale";
 
-const TAILSCALE_ENDPOINT_PROVIDER: AdvertisedEndpointProvider = {
+const tailscaleEndpointProvider = (): AdvertisedEndpointProvider => ({
   id: "tailscale",
-  label: "Tailscale",
+  label: i18n.t("desktop.environment.tailscale"),
   kind: "private-network",
   isAddon: true,
-};
+});
 
 function resolveTailscaleIpAdvertisedEndpoints(input: {
   readonly port: number;
@@ -42,14 +43,14 @@ function resolveTailscaleIpAdvertisedEndpoints(input: {
 
       endpoints.push(
         createAdvertisedEndpoint({
-          provider: TAILSCALE_ENDPOINT_PROVIDER,
+          provider: tailscaleEndpointProvider(),
           source: "desktop-addon",
           id: `tailscale-ip:http://${address.address}:${input.port}`,
-          label: "Tailscale IP",
+          label: i18n.t("desktop.environment.tailscaleIp"),
           httpBaseUrl: `http://${address.address}:${input.port}`,
           reachability: "private-network",
           status: "available",
-          description: "Reachable from devices on the same Tailnet.",
+          description: i18n.t("desktop.environment.tailscaleIpDescription"),
         }),
       );
     }
@@ -83,17 +84,17 @@ const resolveTailscaleMagicDnsAdvertisedEndpoint = Effect.fn(
 
   return Option.some(
     createAdvertisedEndpoint({
-      provider: TAILSCALE_ENDPOINT_PROVIDER,
+      provider: tailscaleEndpointProvider(),
       source: "desktop-addon",
       id: `tailscale-magicdns:${httpBaseUrl}`,
-      label: "Tailscale HTTPS",
+      label: i18n.t("desktop.environment.tailscaleHttps"),
       httpBaseUrl,
       reachability: "private-network",
       hostedHttpsCompatibility: isReachable ? "compatible" : "requires-configuration",
       status: isReachable ? "available" : "unavailable",
       description: isReachable
-        ? "HTTPS endpoint served by Tailscale Serve."
-        : "MagicDNS hostname. Configure Tailscale Serve for HTTPS access.",
+        ? i18n.t("desktop.environment.tailscaleHttpsDescription")
+        : i18n.t("desktop.environment.tailscaleMagicDnsDescription"),
     }),
   );
 });

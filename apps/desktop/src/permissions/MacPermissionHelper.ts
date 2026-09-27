@@ -1,5 +1,6 @@
 // @effect-diagnostics globalTimers:off -- Poll TCC only while the native permission helper is open.
 import * as Electron from "electron";
+import { i18n } from "@t3tools/shared/i18n";
 import { MAC_PERMISSION_HELPER_CHANNEL } from "../ipc/channels.ts";
 
 import {
@@ -8,7 +9,7 @@ import {
   type SettingsWindow,
 } from "./MacSettingsWindow.ts";
 
-import { MAC_PERMISSION_TITLES, type MacPermission } from "./MacPermission.ts";
+import { macPermissionTitle, type MacPermission } from "./MacPermission.ts";
 
 const permissionGranted = (permission: MacPermission) => {
   if (permission === "screen-recording")
@@ -40,10 +41,12 @@ const escapeHtml = (value: string) =>
   });
 
 function helperHtml(permission: MacPermission, icon: string) {
-  const title = MAC_PERMISSION_TITLES[permission];
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8">
+  const title = i18n.t("desktop.macPermission.setupTitle", {
+    title: macPermissionTitle(permission),
+  });
+  return `<!doctype html><html lang="${i18n.locale}"><head><meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'">
-<title>Set up ${title}</title><style>
+<title>${escapeHtml(title)}</title><style>
 :root { color-scheme: light dark; --base: #fff; --row: #e7e7e7; --text: #292929; --line: #e3e3e3; }
 @media (prefers-color-scheme: dark) { :root { --base: #242424; --row: #383838; --text: #f5f5f5; --line: #484848; } }
 * { box-sizing: border-box; }
@@ -59,9 +62,9 @@ button:focus-visible { outline: 2px solid #007aff; outline-offset: 3px; }
 #app:active { cursor: grabbing; }
 img { width: 32px; height: 32px; pointer-events: none; }
 </style></head><body><main id="panel">
-<button id="close" aria-label="Close permission helper">×</button>
-<header>↑ Drag T3 Code into the list above</header>
-<button id="app" draggable="true" aria-label="Drag T3 Code to System Settings, or click to reveal in Finder"><img src="${escapeHtml(icon)}" alt="" draggable="false">T3 Code</button>
+<button id="close" aria-label="${escapeHtml(i18n.t("desktop.macPermission.closeAria"))}">×</button>
+<header>↑ ${escapeHtml(i18n.t("desktop.macPermission.dragHint"))}</header>
+<button id="app" draggable="true" aria-label="${escapeHtml(i18n.t("desktop.macPermission.dragAria"))}"><img src="${escapeHtml(icon)}" alt="" draggable="false">T3 Code</button>
 </main></body></html>`;
 }
 
@@ -95,7 +98,7 @@ export class MacPermissionHelper {
     const appIcon = iconPaths
       .map((iconPath) => Electron.nativeImage.createFromPath(iconPath))
       .find((image) => !image.isEmpty());
-    if (!appIcon) throw new Error("The packaged T3 Code icon is missing.");
+    if (!appIcon) throw new Error(i18n.t("desktop.macPermission.iconMissing"));
     const icon = appIcon.resize({ width: 64, height: 64 });
     const window = new Electron.BrowserWindow({
       width: 560,
@@ -112,7 +115,7 @@ export class MacPermissionHelper {
       fullscreenable: false,
       alwaysOnTop: true,
       skipTaskbar: true,
-      title: `Set up ${MAC_PERMISSION_TITLES[permission]}`,
+      title: i18n.t("desktop.macPermission.setupTitle", { title: macPermissionTitle(permission) }),
       webPreferences: { preload, sandbox: true, contextIsolation: true, nodeIntegration: false },
     });
     this.window = window;

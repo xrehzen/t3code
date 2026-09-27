@@ -940,7 +940,11 @@ interface StagePackageJson {
 }
 
 export const STAGE_INSTALL_ARGS = ["install", "--prod"] as const;
-export const DESKTOP_ELECTRON_LANGUAGES = ["en-US"] as const;
+// electron-builder prunes every locale resource outside this list, so it also
+// decides which of Electron's `role:` menu labels can be localized at all.
+// Linux and Windows match one `<lang>.pak` per language, so Turkish is `tr`,
+// not `tr-TR`; macOS uses the same names inside `*.lproj` directories.
+export const DESKTOP_ELECTRON_LANGUAGES = ["en-US", "tr"] as const;
 export const DESKTOP_FILE_EXCLUSIONS = [
   // T3 Code always passes the user's installed Claude executable to the SDK,
   // so the SDK's optional platform packages (each a ~200MB bundled executable)
