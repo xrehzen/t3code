@@ -110,6 +110,11 @@ export default mergeConfig(
         js: "#!/usr/bin/env node\n",
       },
       define: {
+        // packages/shared is bundled here as well as in the web client, so the
+        // build-time default catalog locale has to reach both.
+        __T3CODE_BUILD_DEFAULT_LOCALE__: JSON.stringify(
+          process.env.T3CODE_DEFAULT_LOCALE?.trim() ?? "",
+        ),
         __T3CODE_BUILD_CHANNEL__: JSON.stringify(cliBuildChannel),
         __T3CODE_BUILD_RELAY_URL__: JSON.stringify(repoEnv.T3CODE_RELAY_URL?.trim() ?? ""),
         __T3CODE_BUILD_CLERK_PUBLISHABLE_KEY__: JSON.stringify(
