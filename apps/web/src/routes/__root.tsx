@@ -48,7 +48,8 @@ import { resolveAndPersistPreferredEditor } from "../editorPreferences";
 import { isElectron } from "../env";
 import { applyAppearanceFontVariables } from "~/appearanceFonts";
 import { applyAppearanceContrast } from "~/appearanceContrast";
-import { useClientSettings } from "../hooks/useSettings";
+import { i18n, resolveLocale } from "@t3tools/shared/i18n";
+import { useClientSettings, useClientSettingsHydrated } from "../hooks/useSettings";
 import { PlanAgentSelectionHeal } from "../planAgentSelectionHeal";
 import {
   deriveLogicalProjectKeyFromSettings,
@@ -175,6 +176,7 @@ function RootRouteView() {
           <ContrastAppearanceSync />
           <EnvironmentThemeSync />
           <GlassAppearanceSync />
+          <InterfaceLanguageSync />
           <FontAppearanceSync />
           <CustomSnoozeDialogHost />
           <CommandPalette>
@@ -290,6 +292,30 @@ function GlassAppearanceSync() {
       style.removeProperty("--glass-blur");
     }
   }, [glassOpacity]);
+
+  return null;
+}
+
+/**
+ * Applies the persisted interface language to the message catalog, and keeps
+ * `<html lang>` in step so assistive technology pronounces the UI in the
+ * language it is actually rendered in.
+ *
+ * Waits for hydration: before it, the snapshot is only the schema defaults, so
+ * applying them would mount English and then swap to Turkish one frame later.
+ */
+function InterfaceLanguageSync() {
+  const settingsHydrated = useClientSettingsHydrated();
+  const interfaceLanguage = useClientSettings((settings) => settings.interfaceLanguage);
+
+  useEffect(() => {
+    if (!settingsHydrated) return;
+    const systemLocale = window.desktopBridge?.getSystemLocale?.() ?? navigator.language;
+    i18n.setLocale(
+      interfaceLanguage === "system" ? resolveLocale(systemLocale) : interfaceLanguage,
+    );
+    document.documentElement.lang = i18n.locale;
+  }, [interfaceLanguage, settingsHydrated]);
 
   return null;
 }

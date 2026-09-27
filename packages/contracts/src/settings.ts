@@ -48,6 +48,22 @@ export const TimestampFormat = Schema.Literals(["locale", "12-hour", "24-hour"])
 export type TimestampFormat = typeof TimestampFormat.Type;
 const DEFAULT_TIMESTAMP_FORMAT: TimestampFormat = "locale";
 
+/**
+ * Interface language for the desktop and web clients. `system` resolves
+ * against the host locale, which is what most people want: a Turkish desktop
+ * opens in Turkish and an English desktop is byte-for-byte unchanged from
+ * upstream. The other two values are explicit overrides for the other case —
+ * someone who reads English on a Turkish OS, or shares a machine.
+ *
+ * This is a client setting, not a server setting: a person's reading
+ * preference belongs to the device in front of them, and putting it on a
+ * server would drag in mixed-value UI for a field that only ever has one value
+ * on screen.
+ */
+export const InterfaceLanguage = Schema.Literals(["system", "en", "tr"]);
+export type InterfaceLanguage = typeof InterfaceLanguage.Type;
+export const DEFAULT_INTERFACE_LANGUAGE: InterfaceLanguage = "system";
+
 export const DiffLayout = Schema.Literals(["stacked", "split"]);
 export type DiffLayout = typeof DiffLayout.Type;
 const DEFAULT_DIFF_LAYOUT: DiffLayout = "stacked";
@@ -478,6 +494,9 @@ export const ClientSettingsSchema = Schema.Struct({
   ),
   timestampFormat: TimestampFormat.pipe(
     Schema.withDecodingDefault(Effect.succeed(DEFAULT_TIMESTAMP_FORMAT)),
+  ),
+  interfaceLanguage: InterfaceLanguage.pipe(
+    Schema.withDecodingDefault(Effect.succeed(DEFAULT_INTERFACE_LANGUAGE)),
   ),
   snapShotEnabled: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))),
   snapShotIncludeAccessibility: Schema.Boolean.pipe(
@@ -1646,6 +1665,7 @@ export const ClientSettingsPatch = Schema.Struct({
   sidebarThreadSortOrder: Schema.optionalKey(SidebarThreadSortOrder),
   sidebarThreadPreviewCount: Schema.optionalKey(SidebarThreadPreviewCount),
   timestampFormat: Schema.optionalKey(TimestampFormat),
+  interfaceLanguage: Schema.optionalKey(InterfaceLanguage),
   snapShotEnabled: Schema.optionalKey(Schema.Boolean),
   snapShotIncludeAccessibility: Schema.optionalKey(Schema.Boolean),
   snapShotShortcut: Schema.optionalKey(SnapShotShortcut),

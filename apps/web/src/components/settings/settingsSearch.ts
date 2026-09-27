@@ -321,6 +321,16 @@ export const SETTINGS_SEARCH_ITEMS = [
     searchTerms: ["notification toast popup completion input approval failure"],
   },
   {
+    id: "interface-language",
+    title: "Interface language",
+    to: "/settings/general",
+    // Both scripts: a Turkish reader may type either, and the panel is also
+    // reachable from a Turkish UI while the query box still expects English.
+    searchTerms: [
+      "language locale interface turkce turkish english translation i18n ceviri dil arayuz dili arayüz",
+    ],
+  },
+  {
     id: "time-format",
     title: "Time format",
     to: "/settings/general",
